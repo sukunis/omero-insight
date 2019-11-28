@@ -340,19 +340,21 @@ class ImporterComponent
         }
         chooser.setSelectedGroup(getSelectedGroup());
 
-				String microscopeName = (String) ImporterAgent.getRegistry().lookup(LookupNames.MICROSCOPE_WORKSTATION);
-
-				//MDE
-				if (metaDataChooser == null && ImporterAgent.isMDEImport()) {
-					metaDataChooser = new MetaDataDialog(view,model.getSupportedFormats(),type,
-				    controller.getAction(ImporterControl.CANCEL_BUTTON), this,
-				    chooser.getImportButton(),chooser.getCancelImportButton(), microscopeName);
-				    metaDataChooser.addPropertyChangeListener(controller);
-				    view.addMDComponent(metaDataChooser);
-				}
+ 
+       
+        //MDE
+       String microscopeName = (String) ImporterAgent.getRegistry().lookup(LookupNames.MICROSCOPE_WORKSTATION);
+        String mdeConfigPath=ImporterAgent.getMDEPath();
+        if (metaDataChooser == null && ImporterAgent.isMDEImport()) {
+        	metaDataChooser = new MetaDataDialog(view,model.getSupportedFormats(),type,
+        			controller.getAction(ImporterControl.CANCEL_BUTTON), this,
+        			chooser.getImportButton(),chooser.getCancelImportButton(), microscopeName,mdeConfigPath);
+        	metaDataChooser.addPropertyChangeListener(controller);
+        	view.addMDComponent(metaDataChooser);
+        }
 
         if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
-            refreshContainers(new ImportLocationDetails(type));
+        	refreshContainers(new ImportLocationDetails(type));
         //load available disk space
         model.fireDiskSpaceLoading();
         if (display) {

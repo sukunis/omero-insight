@@ -205,7 +205,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	private ModuleList fileInstrumentList;
 	/** template file handle */
 	private File tempFile;
-
+	private String mdeConfigPath;
 
 	//** Namespaces for parsing from xml */
 	public static final String NS_2016_06_07="uos.de/omero/metadata/cellnanos/2015-06-07";
@@ -234,13 +234,15 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 *            The possible objects.
 	 */
 	public MetaDataDialog(JFrame owner, FileFilter[] filters, int type,
-			ImporterAction importerAction, Importer importer,JButton importBtn,JButton cancelImportBtn,String microscope)
+			ImporterAction importerAction, Importer importer,JButton importBtn,JButton cancelImportBtn,
+			String microscope,String mdeConfigPath)
 	{
 		super(1, TITLE, TITLE);
 		this.owner = owner;
 		this.type = type;
 		this.importer = importer;
-
+		this.mdeConfigPath=mdeConfigPath+File.separator+"mdeConfiguration.xml";
+		
 		addImportButtonLink(importBtn);
 		addCancelImportButtonLink(cancelImportBtn);
 		setClosable(false);
@@ -255,7 +257,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			microscope=MDEConfiguration.UNIVERSAL;
 			controller.setCurrentMicName(microscope);
 		}
-		controller.initMDEConfiguration(microscope);
+		controller.initMDEConfiguration(microscope,this.mdeConfigPath);
 
 		//read template file path from Preferences
 		if(getTemplateName()!=null) {
@@ -288,6 +290,9 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 	}
 
+	public String getMDEConfigPath() {
+		return mdeConfigPath;
+	}
 
 	/**
 	 * Init gui components like workstation and buttons, filetree, seriesList and metadataview
