@@ -3,7 +3,7 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *                     OMERO.insight MASTER CONFIGURATION FILE
  *
- * This file specifies the configuration settings for the OMERO.insight runtime 
+ * This file specifies the configuration settings for the OMERO.insight runtime
  * (the Container) and links the available UI components (the Agents) to it. The
  * configuration entries are organized in the following groups:
  *
@@ -14,7 +14,7 @@
  * + Look and Feel: The L&F to use for the whole application.
  *
  *
- * Note that the only entry that needs to be edited *before* launching 
+ * Note that the only entry that needs to be edited *before* launching
  * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services
  * group. All other entries can optionally be edited to tweak runtime behavior,
  * but can in most cases be safely ignored.
@@ -23,12 +23,12 @@
 <container>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * SERVICES
    *
-   * The runtime services provided by the Container.All entries can 
+   * The runtime services provided by the Container.All entries can
    * optionally be edited to tweak runtime behavior.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
@@ -60,7 +60,7 @@
 
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory"></entry>
-    
+
     <!-- The maximum number of times that the Login Service should attempt
          to restore a valid link to OMERO server in the background.
          Non-positive values will be ignored and the internal default will
@@ -98,6 +98,8 @@
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
     <entry name="/services/LOG/file">omeroimporter.log</entry>
+    <!-- Indicate to print out the log in the console -->
+    <entry name="/services/LOG/output/console" type="boolean">false</entry>
 
     <!-- Enables/disables the Caching Service. -->
     <entry name="/services/CACHE/on" type="boolean">true</entry>
@@ -123,7 +125,7 @@
           This is a per-image cache which stores planes that have already
           been rendered and are still valid with respect to the current
           rendering settings.  Because the Rendering Engine can only process
-          one image at a time, the value you specify here will equal the 
+          one image at a time, the value you specify here will equal the
           maximum amount of memory that will be used for caching rendered
           images at any given time.  If set to 0 or a negative value, then
           no caching will be done (this dramatically reduces responsiveness
@@ -131,7 +133,7 @@
     <entry name="/services/RE/cacheSz" type="integer">100</entry>
     <!-- Maximum number of planes that will be pre-fetched and rendered
          asynchronously in addition to the plane that has been currently
-         requested.  If set to a positive value n, then separate threads 
+         requested.  If set to a positive value n, then separate threads
          will be spawned to render (at most) n planes that are likely to
          be requested after the current plane. If 0 or negative, then no
          asynchronous rendering will take place.
@@ -150,7 +152,7 @@
     <!-- How many Kb should be fetched at a time when retrieving a stack.
          Experimental, affects performance and responsiveness.
          Don't modify this unless you know what you're doing. -->
-    <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
+    <entry name="/services/RE/stackBlockSz" type="integer">4096</entry>
 
     <entry name="/services/RE/compressionMedium" type="float">0.85</entry>
     <entry name="/services/RE/compressionLow" type="float">0.50</entry>
@@ -164,10 +166,14 @@
     <entry name="/services/DEBUGGER/applicationNameComment">1</entry>
     <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
     <entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
+    <!-- mde on/off -->
+    <entry name="omero.client.import.mde.enabled" type="boolean">false</entry>
+    <!-- mde config file location (. for in config dir; omero for local user omero dir) -->
+    <entry name="omero.client.import.mde.path">.</entry>
   </services>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * AGENTS
    *
    * The UI components that will be loaded at runtime.
@@ -175,11 +181,11 @@
    * to a Shoola instance.  System administrator may decide to remove some of
    * the Agents in exceptional cases.  (This is easily done by deleting an
    * agent tag altogether.)
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <agents>
     <structuredEntry name="/agents" type="agents">
-      
+
       <!-- NOTE FOR DEVELOPERS
            Add an agent tag for each of your Agents.
            The name tag specifies the human-readable name of the Agent.
@@ -232,23 +238,23 @@
   </agents>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * RESOURCES
    *
    * Icons and fonts used by the widgets that are part of the Container.
    * The iconFactories shouldn't be edited by system administrators, they're
    * only useful to developers.  The fonts family, size, and style can instead
    * be tweaked if needed.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <resources>
     <iconFactories>
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
-           It is turned into an instance of: 
+           It is turned into an instance of:
               org.openmicroscopy.shoola.env.config.IconFactory
            This object can then be used to retrieve any image file within
-           the directory pointed by the location tag. 
+           the directory pointed by the location tag.
       -->
       <structuredEntry name="/resources/icons/DefaultFactory" type="icons">
         <!-- The location tag specifies the FQN of the package that contains
@@ -260,7 +266,7 @@
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
            It is turned into an instance of java.awt.Font.
-      --> 
+      -->
       <structuredEntry name="/resources/fonts/Titles" type="font">
         <family>SansSerif</family>
         <size>12</size>
@@ -270,11 +276,11 @@
   </resources>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * LOOK & FEEL
    *
    * The L&F to use for the whole application.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <!-- This entry specifies what Look and Feel to use for the whole application.
        The default value is system (case insensitive).  This will result in the

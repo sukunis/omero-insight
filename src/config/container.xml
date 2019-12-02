@@ -3,7 +3,7 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *                     OMERO.insight MASTER CONFIGURATION FILE
  *
- * This file specifies the configuration settings for the OMERO.insight runtime 
+ * This file specifies the configuration settings for the OMERO.insight runtime
  * (the Container) and links the available UI components (the Agents) to it. The
  * configuration entries are organized in the following groups:
  *
@@ -14,7 +14,7 @@
  * + Look and Feel: The L&F to use for the whole application.
  *
  *
- * Note that the only entry that needs to be edited *before* launching 
+ * Note that the only entry that needs to be edited *before* launching
  * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services
  * group. All other entries can optionally be edited to tweak runtime behavior,
  * but can in most cases be safely ignored.
@@ -23,12 +23,12 @@
 <container>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * SERVICES
    *
-   * The runtime services provided by the Container.All entries can 
+   * The runtime services provided by the Container.All entries can
    * optionally be edited to tweak runtime behavior.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
@@ -60,9 +60,9 @@
 
     <!-- default fs directory -->
     <entry name="/services/FS/defaultDirectory"></entry>
-    
+
     <!-- The maximum number of times that the Login Service should attempt
-         to restore a valid link to OMERO server in the background. 
+         to restore a valid link to OMERO server in the background.
          Non-positive values will be ignored and the internal default will
          be used instead. -->
     <entry name="/services/LOGIN/omeds/max-retry" type="integer">10</entry>
@@ -98,6 +98,8 @@
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
     <entry name="/services/LOG/file">omeroinsight.log</entry>
+    <!-- Indicate to print out the log in the console -->
+    <entry name="/services/LOG/output/console" type="boolean">false</entry>
 
     <!-- Enables/disables the Caching Service. -->
     <entry name="/services/CACHE/on" type="boolean">true</entry>
@@ -106,7 +108,7 @@
     <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
 
      <!-- Factor by which the maximum number of thumbnails to fetch
-    is multiplied by when the connection's speed is Low. 
+    is multiplied by when the connection's speed is Low.
     -->
     <entry name="/services/Thumbnailing/fetchLowSpeed" type="double">0.25</entry>
 
@@ -114,15 +116,15 @@
     is multiplied by when the connection's speed is Medium.
     -->
     <entry name="/services/Thumbnailing/fetchMediumSpeed" type="double">0.5</entry>
-    
-    <!-- Default value for the max plane width which does not require pyramids - 
+
+    <!-- Default value for the max plane width which does not require pyramids -
          will be overwritten if set server side -->
     <entry name="/services/Thumbnailing/non_pyramid_max_plane_width" type="integer">3192</entry>
-    
-    <!-- Default value for the max plane height which does not require pyramids - 
+
+    <!-- Default value for the max plane height which does not require pyramids -
          will be overwritten if set server side -->
     <entry name="/services/Thumbnailing/non_pyramid_max_plane_height" type="integer">3192</entry>
-    
+
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will
          be removed as soon as we move the engine to the server.
@@ -139,7 +141,7 @@
           This is a per-image cache which stores planes that have already
           been rendered and are still valid with respect to the current
           rendering settings.  Because the Rendering Engine can only process
-          one image at a time, the value you specify here will equal the 
+          one image at a time, the value you specify here will equal the
           maximum amount of memory that will be used for caching rendered
           images at any given time.  If set to 0 or a negative value, then
           no caching will be done (this dramatically reduces responsiveness
@@ -147,7 +149,7 @@
     <entry name="/services/RE/cacheSz" type="integer">100</entry>
     <!-- Maximum number of planes that will be pre-fetched and rendered
          asynchronously in addition to the plane that has been currently
-         requested.  If set to a positive value n, then separate threads 
+         requested.  If set to a positive value n, then separate threads
          will be spawned to render (at most) n planes that are likely to
          be requested after the current plane.  If 0 or negative, then no
          asynchronous rendering will take place.
@@ -171,7 +173,7 @@
     <entry name="/services/RE/compressionMedium" type="float">0.85</entry>
     <entry name="/services/RE/compressionLow" type="float">0.50</entry>
     <!-- Debugger configuration.
-         This entry specifies the name of the server and 
+         This entry specifies the name of the server and
          and e-mail address to submit comment.
     -->
     <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
@@ -183,10 +185,14 @@
     <!-- URL to do offline import -->
     <entry name="omero.client.import.offline.url">http://localhost:8000/ome/import</entry>
     <entry name="omero.client.import.offline.enabled" type="boolean">false</entry>
+    <!-- mde on/off -->
+    <entry name="omero.client.import.mde.enabled" type="boolean">false</entry>
+    <!-- mde config file location (. for in config dir; omero for local user omero dir) -->
+    <entry name="omero.client.import.mde.path">.</entry>
   </services>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * AGENTS
    *
    * The UI components that will be loaded at runtime.
@@ -194,7 +200,7 @@
    * to a insight instance.  System administrator may decide to remove some of
    * the Agents in exceptional cases.  (This is easily done by deleting an
    * agent tag altogether.)
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <agents>
     <structuredEntry name="/agents" type="agents">
@@ -251,7 +257,7 @@
   </agents>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * RESOURCES
    *
    * Icons and fonts used by the widgets that are part of the Container.
@@ -264,7 +270,7 @@
     <iconFactories>
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
-           It is turned into an instance of: 
+           It is turned into an instance of:
               org.openmicroscopy.shoola.env.config.IconFactory
            This object can then be used to retrieve any image file within
            the directory pointed by the location tag
@@ -278,7 +284,7 @@
     <fonts>
       <!-- NOTE FOR DEVELOPERS
            This type of entry can be used in agents' configuration files too.
-           It is turned into an instance of java.awt.Font. 
+           It is turned into an instance of java.awt.Font.
       -->
       <structuredEntry name="/resources/fonts/Titles" type="font">
         <family>SansSerif</family>
@@ -289,11 +295,11 @@
   </resources>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
+   *
    * LOOK & FEEL
    *
    * The L&F to use for the whole application.
-   * 
+   *
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <!-- This entry specifies what Look and Feel to use for the whole application.
        The default value is system (case insensitive).  This will result in the
@@ -301,7 +307,7 @@
        the Windows L&F on Microsoft Windows platforms, etc.  Alternatively, you
        can specify the following:
           javax.swing.plaf.metal.MetalLookAndFeel: the Java look and feel.
-        
+
        If you want to use a custom L&F then you can just drop the L&F jar file
        into the lib directory and then specify here the fully-qualified name
        (FQN) of the L&F class to use - this name can usually be found in the
@@ -339,7 +345,7 @@
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating the dependencies when the client is used as a plugin
    * e.g. as an ImageJ plugin.
-   * The id: 
+   * The id:
    * 1 identifies ImageJ plugin. This means that the application is used
    * as an ImageJ plugin, in that case by default the the image will be opened
    * in the imageJ viewer.
