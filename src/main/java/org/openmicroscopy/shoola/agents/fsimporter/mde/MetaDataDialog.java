@@ -949,12 +949,14 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			return;
 		if(fnode.getContainer()!=null) {
 			DefaultMutableTreeNode treeNode=fnode.getContainer().getTreeNode();
-			Enumeration e = treeNode.breadthFirstEnumeration();
-			while(e.hasMoreElements()) {
-				DefaultMutableTreeNode node =(DefaultMutableTreeNode)e.nextElement();
-				ModuleContent content = controller.getContentOfType(((ModuleTreeElement) node.getUserObject()).getType());
-				if(content!=null)
-					((ModuleTreeElement) node.getUserObject()).setProperties(content.getProperties());
+			if(treeNode!=null) {
+				Enumeration e = treeNode.breadthFirstEnumeration();
+				while(e.hasMoreElements()) {
+					DefaultMutableTreeNode node =(DefaultMutableTreeNode)e.nextElement();
+					ModuleContent content = controller.getContentOfType(((ModuleTreeElement) node.getUserObject()).getType());
+					if(content!=null)
+						((ModuleTreeElement) node.getUserObject()).setProperties(content.getProperties());
+				}
 			}
 			
 		}
