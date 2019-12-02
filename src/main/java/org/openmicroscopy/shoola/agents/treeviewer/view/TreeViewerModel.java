@@ -846,13 +846,16 @@ class TreeViewerModel
 	 * Browses the node hosting the project to browse.
 	 * 
 	 * @param node The node to browse.
+	 * @param downloadPath destination to save project
 	 */
-	void browseProject(TreeImageDisplay node)
+	void browseProject(TreeImageDisplay node, String downloadPath)
 	{
-		state = TreeViewer.LOADING_DATA;
+		// state change not for download the project (no thumnail loading)
+		if(downloadPath==null)
+			state = TreeViewer.LOADING_DATA;
 		ExperimenterData exp = getSelectedBrowser().getNodeOwner(node);
 		SecurityContext ctx = getSecurityContext();
-		currentLoader = new ProjectsLoader(component, ctx, node, exp.getId());
+		currentLoader = new ProjectsLoader(component, ctx, node, exp.getId(),downloadPath);
 		currentLoader.load();
 	}
 	

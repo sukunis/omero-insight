@@ -190,6 +190,13 @@ public abstract class ActivityComponent
 	/** The index where the output goes.*/
 	private String paneIndex;
 	
+	/** The label displaying download progress. */
+	private JLabel progressDownloadFiles;
+
+	/** Number of images to download.*/
+	protected int numOfFiles=-1;
+
+
     /**
 	 * Opens the passed object. Downloads it first.
 	 * 
@@ -284,6 +291,7 @@ public abstract class ActivityComponent
 		if (icon != null) iconLabel.setIcon(icon);
 		statusPane = status;
 		resultPane = new JPanel();
+		progressDownloadFiles=new JLabel("0/"+numOfFiles);
 		listener = new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -310,7 +318,18 @@ public abstract class ActivityComponent
 			TableLayout.PREFERRED, TableLayout.PREFERRED},
 			{TableLayout.PREFERRED}};
 		setLayout(new TableLayout(tl));
-		add(statusPane, "0, 0");
+		JPanel progressPane=new JPanel();
+		progressPane.setOpaque(false);
+		progressPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		double[][] sizeP = {{TableLayout.FILL},
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		progressPane.setLayout(new TableLayout(sizeP));
+		progressPane.add(statusPane, "0, 0, LEFT, CENTER");
+		if(numOfFiles>-1)
+			progressPane.add(progressDownloadFiles, "0, 1, CENTER, CENTER");
+
+		add(progressPane, "0, 0");
+
 		JPanel p = UIUtilities.buildComponentPanel(barPane);
 		p.setOpaque(false);
 		p.setBackground(barPane.getBackground());
@@ -953,5 +972,15 @@ public abstract class ActivityComponent
 		if (cancelButton != null) cancelButton.setBackground(color);
 		if (exceptionButton != null) exceptionButton.setBackground(color);
 	}
+	
+	/**
+	 * Update progress label.
+	 * @param progress number of downloaded data.
+	 */
+	public void update(int progress) {
+		progressDownloadFiles.setText(String.valueOf(progress)+"/"+numOfFiles);
+		progressDownloadFiles.repaint();
+
+}
 	
 }

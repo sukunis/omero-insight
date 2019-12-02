@@ -1210,4 +1210,6 @@ public interface TreeViewer
      */
     RndProxyDef getSelectedViewedBy();
 
+	void downloadImageCollection(String subfolder, List<DataObject> archived,int size);
+
 }

@@ -293,6 +293,10 @@ public interface Editor
      */
     public void downloadOriginal(String path, boolean override);
 	
+	public void downloadProject(String path, boolean override);
+
+	public int getNumberOfSelectedObjects();
+	
 	/**
 	 * Sets the parent of the root object. This will be taken into account
 	 * only if the root is a well sample.

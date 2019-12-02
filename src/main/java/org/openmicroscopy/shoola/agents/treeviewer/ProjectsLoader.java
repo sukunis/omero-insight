@@ -20,18 +20,26 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 
 import omero.gateway.SecurityContext;
 
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
 
 /** 
@@ -47,7 +55,7 @@ import omero.gateway.model.ProjectData;
  * @since OME3.0
  */
 public class ProjectsLoader 
-	extends DataTreeViewerLoader
+	extends org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
@@ -59,6 +67,9 @@ public class ProjectsLoader
     /** The user's identifier. */
     private long 				userID;
     
+    /** Destination directory for download project data. */
+    private String downloadPath;
+    
     /**
      * Creates a new instance.
      * 
@@ -67,20 +78,22 @@ public class ProjectsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      * @param userID The user's identifier.
+     * @param downloadPath destination where the data should be stored.
      */
     public ProjectsLoader(TreeViewer viewer, SecurityContext ctx, 
-    		TreeImageDisplay node, long userID)
+    		TreeImageDisplay node, long userID,String downloadPath)
 	{
 		super(viewer, ctx);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
 		this.userID = userID;
+        this.downloadPath=downloadPath;
 	}
 	
 	 /**
      * Retrieves the data.
-     * @see DataTreeViewerLoader#load()
+     * @see org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -94,7 +107,7 @@ public class ProjectsLoader
 
     /**
      * Cancels the data loading.
-     * @see DataTreeViewerLoader#cancel()
+     * @see org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
@@ -105,7 +118,64 @@ public class ProjectsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        // load data of project
+        if(downloadPath==null){
         viewer.browseHierarchyRoots(node, (Collection) result);
+        }else{//download data of project
+            for (Object o : (Collection) result) {
+                if (o instanceof ProjectData) {
+                    ProjectData proj = (ProjectData) o;
+                    String projPath = downloadPath + "/" + proj.getName();
+
+                    boolean success =true;
+                    if(!proj.getDatasets().isEmpty() && !(new File(projPath).exists()))
+                        success = (new File(projPath)).mkdir();
+                    if(success){
+                        for (DatasetData ds : proj.getDatasets()) {
+                            String path = projPath + "/" + ds.getName();
+                            downloadDataset(ds,path);
+    }
+                    }else{
+                        UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+                        un.notifyError("Download Project Error", "Can't create directory for "+proj.getName());
+                    }
+                }
+            }
+        }
     }
     
+    /**
+     * Load and download image collection of given dataset.
+     * @param ds given dataset
+     * @param path download destination
+     */
+    private void downloadDataset(DatasetData ds, String path)
+    {
+        List<DataObject> imageSets = new ArrayList<DataObject>();
+        List<Long> filesetIds = new ArrayList<Long>();
+        Iterator it=ds.getImages().iterator();
+        long id;
+        ImageData image;
+        while(it.hasNext()){
+            image=(ImageData) it.next();
+            if (image.isArchived()) {
+                id = image.getFilesetId();
+                if (id < 0) imageSets.add(image);
+                else if (!filesetIds.contains(id)) {
+                    imageSets.add(image);
+                    filesetIds.add(id);
+}
+            }
+        }
+        if(!imageSets.isEmpty()){
+            // create dataset directory
+            File target =new File(path);
+            if(!target.exists())
+                target.mkdir();
+        }
+
+        viewer.downloadImageCollection(path,imageSets,ds.getImages().size());
+    }
+
+
 }

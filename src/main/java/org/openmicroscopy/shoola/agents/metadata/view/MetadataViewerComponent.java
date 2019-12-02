@@ -996,6 +996,11 @@ class MetadataViewerComponent
 			firePropertyChange(GENERATE_FIGURE_PROPERTY, null, value);
 	}
 	
+	public void downloadProject(String path)
+	{
+		firePropertyChange(DOWNLOAD_PROJECT_PROPERTY,null,path);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#manageScript(ScriptObject, int)

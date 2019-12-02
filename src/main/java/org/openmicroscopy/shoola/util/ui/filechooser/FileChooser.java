@@ -67,6 +67,10 @@ public class FileChooser
     public static final String DOWNLOAD_DESCRIPTION =
             "Select where to download the file(s).";
 
+    /** The text corresponding to the download project action.*/
+    public static final String DOWNLOAD_PR_DESCRIPTION=
+            "Select where to download the project.";
+
     /** Bound property indicating that the cancel button is pressed. */
     public static final String	APPROVE_SELECTION_PROPERTY = "approveSelection";
 

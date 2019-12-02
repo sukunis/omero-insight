@@ -644,6 +644,27 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
+	 *
+	 * @see Editor#downloadProject(String, boolean)
+	 */
+	public void downloadProject(String path, boolean override) {
+		if (CommonsLangUtils.isEmpty(path))
+			return;
+
+		model.downloadProject(path, override);
+	}
+
+	public int getNumberOfSelectedObjects()
+	{
+		int size=0;
+		List selection=model.getSelectedObjects();
+		if(selection!=null)
+			size=selection.size();
+		return size;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setPlaneInfo(Collection, long, int)
 	 */
 	public void setPlaneInfo(Collection result, long pixelsID, int channel)

@@ -177,4 +177,12 @@ public class ArchivedLoader
         }
     }
 
+    /**
+     * Send progress of data download to {@link ActivityComponent}.
+     * @param progress number of downloaded data
+     */
+    public void update(int progress) {
+        activity.update(progress);
+}
+
 }

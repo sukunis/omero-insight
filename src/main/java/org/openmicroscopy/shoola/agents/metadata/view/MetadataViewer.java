@@ -144,6 +144,9 @@ public interface MetadataViewer
 	/** Bound property indicating to create a figure. */
 	public static final String	GENERATE_FIGURE_PROPERTY = "generateFigure";
 	
+	/** bound property indicating download project directory.*/
+	public static final String DOWNLOAD_PROJECT_PROPERTY = "downloadProject";
+	
 	/** Bound property indicating to close the renderer. */
 	public static final String	CLOSE_RENDERER_PROPERTY = "closeRenderer";
 	
@@ -723,4 +726,10 @@ public interface MetadataViewer
      *            The data
      */
     public void setHistogramData(int ch, int[] data);
+
+	/**
+	 * Download the whole project
+	 * @param path
+	 */
+	public void downloadProject(String path);
 }

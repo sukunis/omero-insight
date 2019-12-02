@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.util.ui.DowngradeChooser;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -208,6 +210,9 @@ class EditorControl
      */
     static final int SHOW_LOCATION = 26;
 	
+	/** Action ID to download project.*/
+	static final int DOWNLOAD_PR=27;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -310,6 +315,40 @@ class EditorControl
         });
         chooser.centerDialog();
     }
+
+	/** Brings up the folder chooser.*/
+	private void downloadProject()
+	{
+		if(model.getNumberOfSelectedObjects()>1){
+			System.out.println("# EditorControl::downloadProject(): multiselection");
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Selection For Project Download", "Please select only one project for download! ");
+			return;
+		}
+
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+
+		int type = FileChooser.FOLDER_CHOOSER;
+
+		FileChooser chooser = new FileChooser(f, type,
+				FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_PR_DESCRIPTION);
+
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+		chooser.setCheckOverride(true);
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				FileChooser src = (FileChooser) evt.getSource();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					String path = (String) evt.getNewValue();
+					model.downloadProject(path, src.isOverride());
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
 
 	/** Brings up the folder chooser to select where to save the files. 
 	 * 
@@ -721,6 +760,9 @@ class EditorControl
 				break;
 			case DOWNLOAD:
 				download();
+				break;
+			case DOWNLOAD_PR:
+				downloadProject();
 				break;
 			case ADD_TAGS:
 				loadExistingTags();

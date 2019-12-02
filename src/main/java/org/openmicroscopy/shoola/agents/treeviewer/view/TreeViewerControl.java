@@ -1335,6 +1335,14 @@ class TreeViewerControl
 		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
 				name)) {
 			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
+		}else if (MetadataViewer.DOWNLOAD_PROJECT_PROPERTY.equals(name)){
+
+			Browser browser = model.getSelectedBrowser();
+			if (browser != null) {
+				((TreeViewerComponent)model).getModel().browseProject( browser.getLastSelectedDisplay(), (String) pce.getNewValue());
+
+			}
+
 		} else if (MetadataViewer.GENERATE_FIGURE_PROPERTY.equals(name)) {
 			Object object = pce.getNewValue();
 			if (!(object instanceof FigureParam)) return;

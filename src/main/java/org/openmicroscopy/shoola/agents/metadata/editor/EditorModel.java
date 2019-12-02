@@ -3174,6 +3174,21 @@ class EditorModel
     }
 
 	/** 
+	 * Starts an asynchronous loading; preserving the original folder structure
+	 *
+	 * @param path
+	 *            The folder where to download the content.
+	 * @param override
+	 *            Flag indicating to override the existing file if it exists,
+	 *            <code>false</code> otherwise.
+	 */
+	void downloadProject(String path, boolean override)
+	{
+		parent.downloadProject(path);
+
+	}
+
+	/** 
 	 * Starts an asynchronous call to retrieve disk space information. 
 	 * 
 	 * @param type 	Either <code>ExperimenterData</code> or

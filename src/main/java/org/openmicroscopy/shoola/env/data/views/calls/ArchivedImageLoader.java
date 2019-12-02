@@ -43,6 +43,9 @@ import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.ui.ActivityComponent;
+import org.openmicroscopy.shoola.env.ui.ArchivedLoader;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
 
@@ -74,6 +77,10 @@ public class ArchivedImageLoader
     
     /** Flag for preserving the original folder structure */
     private boolean keepOriginalPaths = false;
+    
+    private int numberOfDownloads;
+
+    private AgentEventListener loader;
     
     /**
      * Copies the specified file to the folder.
@@ -172,7 +179,9 @@ public class ArchivedImageLoader
                     for (Long imageID : imageIDs) {
                         Map<Boolean, Object> r = os.getArchivedImage(ctx,
                                 tmpFolder, imageID, keepOriginalPaths);
-                        files.addAll((List<File>) r.get(Boolean.TRUE));
+                        List<File> downloadedFiles=	(List<File>) r.get(Boolean.TRUE);
+                        sendStatusUpdate(downloadedFiles.size());
+                        files.addAll(downloadedFiles);
                     }
                     
                     result = new HashMap<Boolean, List<File>>();
@@ -207,6 +216,15 @@ public class ArchivedImageLoader
         };
     }
     
+    /**
+     * Send progress of data download to {@link ActivityComponent}.
+     * @param size number of downloaded data
+     */
+    protected void sendStatusUpdate(int size) {
+        numberOfDownloads+=size;
+        ((ArchivedLoader) loader).update(numberOfDownloads);
+    }
+
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -251,15 +269,18 @@ public class ArchivedImageLoader
      *                 exists, <code>false</code> otherwise.
      * @param zip Pass <code>true</code> to create a zip file
      * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
+     * @param loader
      */
     public ArchivedImageLoader(SecurityContext ctx, List<DataObject> objects,
-            File folderPath, boolean override, boolean zip, boolean keepOriginalPaths)
+            File folderPath, boolean override, boolean zip, boolean keepOriginalPaths,AgentEventListener loader)
     {
         if (CollectionUtils.isEmpty(objects))
              throw new IllegalArgumentException("No objects provided.");
         this.override = override;
         this.zip = zip;
         this.keepOriginalPaths = keepOriginalPaths;
+        this.numberOfDownloads=0;
+        this.loader=loader;
         loadCall = makeBatchCall(ctx, objects, folderPath);
     }
 }

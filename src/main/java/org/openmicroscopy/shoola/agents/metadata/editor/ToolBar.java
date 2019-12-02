@@ -77,6 +77,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 import omero.gateway.model.WellSampleData;
 
 /** 
@@ -186,6 +187,15 @@ class ToolBar
         }
         downloadItem.setEnabled(b);
         saveAsMenu.add(downloadItem);
+
+		JMenuItem downloadPrItem=new JMenuItem();
+		downloadPrItem.setToolTipText("Download the whole Project.");
+		downloadPrItem.setText("Download Project...");
+		downloadPrItem.addActionListener(controller);
+		downloadPrItem.setActionCommand(""+EditorControl.DOWNLOAD_PR);
+		downloadPrItem.setBackground(UIUtilities.BACKGROUND_COLOR);
+		downloadPrItem.setEnabled(model.getRefObject() instanceof ProjectData);
+		saveAsMenu.add(downloadPrItem);
 
         exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
                 IconManager.EXPORT_AS_OMETIFF));
