@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "org.openmicroscopy"
-version = "5.5.6-e1"
+version = "5.5.10-SNAPSHOT"
 
 repositories {
     mavenLocal()
@@ -29,7 +29,7 @@ dependencies {
     }
     implementation("com.mortennobel:java-image-scaling:0.8.6")
     implementation("com.google.code.gson:gson:2.8.5")
-    implementation("com.zeroc:glacier2:3.6.4")
+    implementation("com.zeroc:glacier2:3.6.5")
     implementation("info.clearthought:table-layout:4.3.0")
     implementation("insight:JHotDraw:7.0.9")
     implementation("net.imagej:ij:1.48s")
@@ -44,7 +44,7 @@ dependencies {
     implementation("org.jfree:jfreechart:1.0.19")
     implementation("org.swinglabs:swingx:1.6.1")
 
-    implementation("org.openmicroscopy:omero-gateway:5.5.3-e1") {
+    implementation("org.openmicroscopy:omero-gateway:5.6.1") {
         // Conflicts with `net.java.dev.jna`
         exclude group: "com.sun.jna", module: "jna"
     }
