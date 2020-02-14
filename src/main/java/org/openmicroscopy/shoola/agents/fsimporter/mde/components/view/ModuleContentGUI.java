@@ -90,33 +90,36 @@ public class ModuleContentGUI extends JPanel {
 	}
 	
 	private void addContent(JXTaskPaneContainer parent,DefaultMutableTreeNode node) {
-		if(node.getChildCount()>0) {
-			JXTaskPaneContainer nodeContent = new JXTaskPaneContainer();
-			nodeContent.setBackground(UIUtilities.BACKGROUND);
-			if (nodeContent.getLayout() instanceof VerticalLayout) {
-				VerticalLayout vl = (VerticalLayout) nodeContent.getLayout();
-				vl.setGap(2);
-			}
-			nodeContent.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-			//add this content
-			try {
-				JXTaskPane taskPane=new ContentViewer(node.getUserObject().toString(), 
-						getHardwareTable(((ModuleTreeElement) node.getUserObject()).getType()), ((ModuleTreeElement)node.getUserObject()).getData());
-				for(int i = 0 ; i < node.getChildCount(); i++) {
-					String type=((ModuleTreeElement) ((DefaultMutableTreeNode) node.getChildAt(i)).getUserObject()).getType();
-					if(controller.configurationExists(type)) {
-						addContent(nodeContent,(DefaultMutableTreeNode)node.getChildAt(i));
-					}
+		String typec=((ModuleTreeElement) node.getUserObject()).getType();
+		if(controller.configurationExists(typec)) {
+			if (node.getChildCount() > 0) {
+				JXTaskPaneContainer nodeContent = new JXTaskPaneContainer();
+				nodeContent.setBackground(UIUtilities.BACKGROUND);
+				if (nodeContent.getLayout() instanceof VerticalLayout) {
+					VerticalLayout vl = (VerticalLayout) nodeContent.getLayout();
+					vl.setGap(2);
 				}
-				taskPane.add(nodeContent);
-				parent.add(taskPane);
-			}catch(Exception e) {
-				ImporterAgent.getRegistry().getLogger().warn(this,"[MDE] can't load content of "+node.getUserObject().toString());
-				e.printStackTrace();
+				nodeContent.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+				//add this content
+				try {
+					JXTaskPane taskPane = new ContentViewer(node.getUserObject().toString(),
+							getHardwareTable(((ModuleTreeElement) node.getUserObject()).getType()), ((ModuleTreeElement) node.getUserObject()).getData());
+					for (int i = 0; i < node.getChildCount(); i++) {
+						String type = ((ModuleTreeElement) ((DefaultMutableTreeNode) node.getChildAt(i)).getUserObject()).getType();
+						if (controller.configurationExists(type)) {
+							addContent(nodeContent, (DefaultMutableTreeNode) node.getChildAt(i));
+						}
+					}
+					taskPane.add(nodeContent);
+					parent.add(taskPane);
+				} catch (Exception e) {
+					ImporterAgent.getRegistry().getLogger().warn(this, "[MDE] can't load content of " + node.getUserObject().toString());
+					e.printStackTrace();
+				}
+
+			} else {
+				addLeafContent(parent, node);
 			}
-			
-		}else {
-			addLeafContent(parent,node);
 		}
 	}
 	
@@ -150,4 +153,4 @@ public class ModuleContentGUI extends JPanel {
 			return null;
 		return new ObjectTable(hardwareTables.get(key));
 	}
-}
+		}
