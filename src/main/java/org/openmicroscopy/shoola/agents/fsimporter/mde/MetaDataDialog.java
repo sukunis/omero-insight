@@ -21,7 +21,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.mde;
 
 import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
@@ -29,44 +28,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeExpansionEvent;
@@ -81,7 +61,6 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
-import org.openmicroscopy.shoola.agents.fsimporter.mde.MetaDataDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleContent;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleController;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleList;
@@ -489,22 +468,23 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 * @param node selected node in the filetree
 	 * @param reload TODO
 	 */
-	private void loadAndShowDataForSelection(FNode node, boolean reload)
+	private DefaultMutableTreeNode loadDataForSelection(FNode node, boolean reload)
 	{
+		ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] load data for selected node");
 		String file=null;
 		if(node==null || (file=fileTree.getSelectedFilePath(node))==null)
-			return;
+			return null;
 
 		DefaultMutableTreeNode pTree=null;
 		HashMap<String,List<TagData>> input=null;
 		
 		if(node.getContainer()==null || node.getContainer().getTreeNode()==null) 
 		{
-			ImporterAgent.getRegistry().getLogger().debug(this, "-- nodeContainer is empty");
+			ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Object tree available for selected node: NO");
 			//get parent tree and data 
 			FNode pNode=getNextParentWithAvailableTree(node);
 			if(pNode!=null && pNode.getContainer()!=null) {
-				ImporterAgent.getRegistry().getLogger().debug(this, "-- use tree and input of "+pNode.getAbsolutePath());
+				ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Use object tree and input of: "+pNode.getAbsolutePath());
 				pTree=pNode.getContainer().getTreeNode();
 				input=pNode.getInput();
 			}
@@ -519,12 +499,16 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				}
 			}catch(Exception e){
 				resetFileTreeAtError("Metadata Error!","Can't load metadata of "+file,e);
-				return;
+				return pTree;
 			}
+		}else{
+			ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Object tree available for selected node: YES");
 		}
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] load content for "+node.getAbsolutePath());
+		//TODO: necessarry at this place to save mapannotation?
 		node.setMapAnnotation(input);
-		showMDE(node.getContainer(),pTree);
+
+		return pTree;
+
 	}
 
 
@@ -553,17 +537,17 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	/**
 	 * load predefined value, parent, import and model data.
 	 * @param file
-	 * @param parentModel
+	 * @param pTree
 	 * @param node TODO
 	 */
 	private void loadDataForFile(String file,DefaultMutableTreeNode pTree, FNode node) throws Exception
 	{
 		lastSelectionType=FILE;
 
-		ImporterAgent.getRegistry().getLogger().debug(this, "-- Show file data \t[MetaDataDialog::loadAndShowDataForFile]");
+		ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load file data");
 
 		NodeContainer current = node.getContainer();
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Create or copy container for node "+node.getAbsolutePath());
+
 		NodeContainer cont = new NodeContainer(file, getImportData(), pTree, this, current, false);
 		node.setContainer(cont);
 	}
@@ -638,8 +622,8 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				getCurrentModuleTree().setChangeTreeStructure(false);
 
 				node.setMapAnnotation(input);
-				ImporterAgent.getRegistry().getLogger().debug(this, "-- MAPAnnotation AT DESELECTED NODE:");
-				MDEHelper.printList(node.getAbsolutePath(), node.getInput());
+				ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] save mapannotation for deselected node");
+				//MDEHelper.printList(node.getAbsolutePath(), node.getInput());
 			}
 			lastNode=node;
 		}
@@ -678,7 +662,26 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			}
 		}
 	}
-	
+
+	private void updateObjectTree(FNode node) {
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] update object tree");
+		DefaultMutableTreeNode tree=node.getContainer().getTreeNode();
+		//ModuleTree treePanel=getCurrentModuleTree();
+
+		if(tree!=null) {
+			HashMap<String,List<TagData>> cinput = MDEHelper.getInput(tree);
+
+			// load new tree and set input again
+			ModuleTree newTree=getCurrentModuleTree();
+			newTree.customizeTree(controller.getCurrentMicName());
+			node.getContainer().setTreeNode(newTree.getRoot());
+			//			newTree.printTree(newTree.getRoot(), "New Tree after Reset");
+			MDEHelper.addData(newTree.getRoot(), cinput);
+		}
+	}
+
+
+
 	private void resetObjectTree() {
 		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] PRESS RESET object tree");
 		ModuleTree treePanel=getCurrentModuleTree();
@@ -686,7 +689,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 		if(initRoot == null)
 			initRoot=controller.getTree();
 		if(treePanel!=null) {
-			// reload MDEContent to recover image container contains
+			// reload MDEContent to recover image container contents
 			// first save user input
 			FNode node=((FNode)fileTree.getLastSelectedPathComponent());
 			HashMap<String,List<TagData>> minput=node.getInput();
@@ -836,7 +839,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			case CHOOSE_MIC:
 				if(mics.getSelectedIndex()!=-1) {
 					String newSelection=controller.getMicNames()[mics.getSelectedIndex()];
-					ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] load configuration for "+newSelection);
+					ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] load new configuration for "+newSelection);
 					setMicroscopeName(newSelection);
 					controller.setCurrentMicName(newSelection);
 					
@@ -848,11 +851,16 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 						
 						//update objects with objectConf of selected setup
 						updateObjectConf((FNode)fileTree.getLastSelectedPathComponent());
-						
+
 						//TODO reload current view if changes
-						loadAndShowDataForSelection((FNode)fileTree.getLastSelectedPathComponent(), true);
+						FNode thisNode = (FNode)fileTree.getLastSelectedPathComponent();
+						DefaultMutableTreeNode pTree=  loadDataForSelection(thisNode, true);
+						updateObjectTree(thisNode);
+						if(thisNode!=null)
+							showMDE(thisNode.getContainer(),pTree);
 					}
-					
+
+
 					// inform ImporterControl about this changes
 					//String newTitle=customSettings.getMicName()+(customSettings.getMicDesc()!=null?(": "+customSettings.getMicDesc()): "");
 					String newTitle=controller.getCurrentMicName();
@@ -869,20 +877,20 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				resetObjectTree();
 				//clear node model data
 				if(selection!=null) {
-				selection.reset();
-				//TODO get parentTree
-				try {
-					if(!selection.isLeaf()){
-						loadDataForDirectory(selection, file, null);
-					}else{
-						loadDataForFile(file, null, selection );
+					selection.reset();
+					//TODO get parentTree
+					try {
+						if(!selection.isLeaf()){
+							loadDataForDirectory(selection, file, null);
+						}else{
+							loadDataForFile(file, null, selection );
+						}
+						//    		((MetaDataView)metaPanel.getComponent(0)).reset();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					//    		((MetaDataView)metaPanel.getComponent(0)).reset();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				showMDE(selection.getContainer(),null);
+					showMDE(selection.getContainer(),null);
 				}
 				break;
 			case SAVE_TEMPLATE:
@@ -966,6 +974,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	@Override
 	public void valueChanged(TreeSelectionEvent e) 
 	{
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] TreeselectEvent: valueChanged");
 		if(!disableTreeListener){
 			FNode selectedNode=null;
 			FNode lastSelectedNode=null;
@@ -998,7 +1007,8 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Select node action for "+selectedNode.getAbsolutePath());
 
 			resetFileDataButton.setEnabled(true);
-			loadAndShowDataForSelection(selectedNode, false);
+			DefaultMutableTreeNode pTree= loadDataForSelection(selectedNode, false);
+			showMDE(selectedNode.getContainer(),pTree);
 
 			revalidate();
 			repaint();
