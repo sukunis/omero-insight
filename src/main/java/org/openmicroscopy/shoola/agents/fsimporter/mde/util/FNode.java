@@ -125,14 +125,15 @@ public class FNode extends DefaultMutableTreeNode
 	 */
 	public void setMapAnnotation(HashMap<String,List<TagData>> input)
 	{
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] save input as mapannotation");
 		if(input==null || input.isEmpty()) {
 			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] given input is empty");
 			return;
-	}
+		}
 		if(this.input==null) {
 			this.input=new HashMap<>();
 		}
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] merge input");
+
 		for(Map.Entry<String, List<TagData>> entry:input.entrySet()) {
 			List<TagData> list1 = entry.getValue();
 			List<TagData> list2 = this.input.get(entry.getKey());
@@ -162,6 +163,7 @@ public class FNode extends DefaultMutableTreeNode
 	
  
 	public void setContainer(NodeContainer cont) {
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Replace Container");
 		this.container= cont;
 	}
 	

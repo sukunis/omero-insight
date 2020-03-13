@@ -998,9 +998,16 @@ public class TagData
 			unitSymbol=new String[] {unitsymbol};
 			unitClass = TagNames.getUnit(unitsymbol).getClass();
 			return;
-		}else if(getTagValue().trim().equals("")){
-			for(int i=0; i<unitSymbol.length;i++)
-				unitSymbol[i]=unitsymbol;
+		}else if(getTagValue().trim().equals("") && unitsymbol!=null){
+			// initialisation of symbol array necessary?
+			if(unitSymbol==null){
+				if(value!=null){
+					unitSymbol= new String[value.length];
+				}
+			}
+			for(int i=0; i<unitSymbol.length;i++) {
+				unitSymbol[i] = unitsymbol;
+			}
 			unitClass = TagNames.getUnit(unitsymbol).getClass();
 			return;
 		}
