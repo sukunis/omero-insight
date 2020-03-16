@@ -19,34 +19,22 @@
 package org.openmicroscopy.shoola.agents.fsimporter.mde.util;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.mde.MDEHelper;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleContent;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleController;
-import org.openmicroscopy.shoola.agents.fsimporter.mde.util.inout.ImportFromTemplateFile;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.util.inout.TypeFilter_GUI;
 
 /**
@@ -65,9 +53,12 @@ public class TemplateDialog extends JDialog implements ActionListener{
 	private JButton btn_filter_load;
 	private JButton btn_browse_save;
 	private JTextField txt_path;
+	private JCheckBox cb_loadObjectData;
 	private JCheckBox cb_loadTreeStructure;
+	private JCheckBox cb_loadObjectDef;
 	private List<String> moduleList;
 	private File tempFile;
+	private final String suffix=".xml";
 	private DefaultMutableTreeNode tree;
 	
 
@@ -81,10 +72,10 @@ public class TemplateDialog extends JDialog implements ActionListener{
 		this.tree=root;
 
 		if(load) {
-			this.setTitle("Import Metadata ");
+			this.setTitle("Load Metadata from Template File ");
 			buildGUI_loadFile();
 		}else {
-			this.setTitle("Export Metadata ");
+			this.setTitle("Save Metadata to Template File ");
 			buildGUI_saveFile();
 		}
 		pack();
@@ -107,16 +98,34 @@ public class TemplateDialog extends JDialog implements ActionListener{
 		btnPane.add(btn_OK);
 
 		JPanel subPanel= new JPanel();
-		subPanel.setLayout(new BorderLayout(5,5));
-		subPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		Border titleBorder = BorderFactory.createTitledBorder("Configuration:");
+		//subPanel.setLayout(new BorderLayout(5,5));
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
+		//subPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		subPanel.setBorder(titleBorder);
 
-		cb_loadTreeStructure = new JCheckBox("Load object tree structure");
+		btn_filter_load = new JButton("Filter by objects: data to load...");
+		btn_filter_load.addActionListener(this);
+		subPanel.add(btn_filter_load);
+
+		cb_loadObjectData = new JCheckBox("Load object data");
+		cb_loadObjectData.setSelected(true);
+		cb_loadObjectData.setEnabled(false);
+		subPanel.add(cb_loadObjectData);
+
+		cb_loadObjectDef = new JCheckBox("Load object definition");
+		cb_loadObjectDef.setSelected(false);
+		cb_loadObjectDef.setEnabled(false);
+		subPanel.add(cb_loadObjectDef);
+
+		cb_loadTreeStructure = new JCheckBox("Load tree structure");
 		cb_loadTreeStructure.setSelected(false);
-		subPanel.add(cb_loadTreeStructure,BorderLayout.NORTH);
+		cb_loadTreeStructure.setEnabled(false);
+		subPanel.add(cb_loadTreeStructure);
 
 		JLabel srcPath_Lbl=new JLabel("Source");
 		txt_path =new JTextField(50);
-		txt_path.setEditable(true);
+		txt_path.setEditable(false);
 		txt_path.setToolTipText("Source template file");
 		if(tempFile!=null)
 			txt_path.setText(tempFile.getAbsolutePath());
@@ -127,17 +136,12 @@ public class TemplateDialog extends JDialog implements ActionListener{
 		destP.add(txt_path);
 		destP.add(btn_browse_load);
 
-		subPanel.add(destP,BorderLayout.CENTER);
-
-		btn_filter_load = new JButton("Filter by objects: data to load...");
-		btn_filter_load.addActionListener(this);
-
 		JPanel mainPanel=new JPanel();
 		mainPanel.setLayout(new BorderLayout(5,5));
 		mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		mainPanel.add(subPanel,BorderLayout.SOUTH);
-		mainPanel.add(btn_filter_load,BorderLayout.NORTH);
+		mainPanel.add(subPanel,BorderLayout.CENTER);
+		mainPanel.add(destP,BorderLayout.SOUTH);
 
 		getContentPane().add(mainPanel,BorderLayout.CENTER);
 		getContentPane().add(btnPane,BorderLayout.SOUTH);
@@ -161,15 +165,23 @@ public class TemplateDialog extends JDialog implements ActionListener{
 	    btn_filter_save = new JButton("Filter by objects: data to save...");
 	    btn_filter_save.addActionListener(this);
 
+		JPanel subPanel= new JPanel();
+		Border titleBorder = BorderFactory.createTitledBorder("Configuration:");
+		//subPanel.setLayout(new BorderLayout(5,5));
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
+		//subPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		subPanel.setBorder(titleBorder);
+		subPanel.add(btn_filter_save);
+
 	    JPanel mainPanel=new JPanel();
 	    mainPanel.setLayout(new BorderLayout(5,5));
 	    mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-	    mainPanel.add(btn_filter_save,BorderLayout.NORTH);
+	    mainPanel.add(subPanel,BorderLayout.CENTER);
 	    
 
 		JLabel destPath_Lbl=new JLabel("Destination");
 		txt_path =new JTextField(50);
-		txt_path.setEditable(true);
+		txt_path.setEditable(false);
 		txt_path.setToolTipText("Destination to store json template file");
 		if(tempFile!=null)
 			txt_path.setText(tempFile.getAbsolutePath());
@@ -218,16 +230,25 @@ public class TemplateDialog extends JDialog implements ActionListener{
 			setVisible(false);
 			dispose();
 		}else if(e.getSource()== btn_browse_save) {
+			FileFilter filter = new FileNameExtensionFilter("XML file", "xml");
 			JFileChooser fcSave =new JFileChooser();
+			fcSave.addChoosableFileFilter(filter);
+			fcSave.setFileFilter(filter);
 			if(tempFile!=null)
 				fcSave.setCurrentDirectory(new File(tempFile.getParent()));
         	int returnValSave=fcSave.showSaveDialog(this);
         	if(returnValSave==JFileChooser.APPROVE_OPTION) {
         		tempFile=fcSave.getSelectedFile();
+				if(!fcSave.getSelectedFile().getAbsolutePath().endsWith(suffix)){
+					tempFile = new File(fcSave.getSelectedFile() + suffix);
+				}
         		txt_path.setText(tempFile.getAbsolutePath());
         	}
 		}else if(e.getSource()== btn_browse_load) {
+			FileFilter filter = new FileNameExtensionFilter("XML file", "xml");
 			JFileChooser fcOpen =new JFileChooser();
+			fcOpen.addChoosableFileFilter(filter);
+			fcOpen.setFileFilter(filter);
 			if(tempFile!=null)
 				fcOpen.setCurrentDirectory(new File(tempFile.getParent()));
         	int returnValOpen=fcOpen.showOpenDialog(this);
@@ -258,7 +279,7 @@ public class TemplateDialog extends JDialog implements ActionListener{
 	}
 
     public Boolean loadTreeStructure() {
-		return cb_loadTreeStructure.isSelected();
+		return cb_loadObjectData.isSelected();
     }
 }
 

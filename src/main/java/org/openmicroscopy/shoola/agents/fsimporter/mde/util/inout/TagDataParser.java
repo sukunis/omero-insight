@@ -65,7 +65,8 @@ public class TagDataParser {
                 System.out.println("Set tagUnit: " + tagUnit + " Field: " + tagName + " Value: " + tagVal );
                 if(tagVal!=null && tagVal.length()>0) {
                     standardConstr=false;
-                    t = new TagData(parent, tagName, tagVal.split(","), false, tagType);
+                    String[] values=tagVal.split(",");
+                    t = new TagData(parent, tagName, values, false, tagType,values.length);
                     if (tagUnit != null && !tagUnit.isEmpty()) {
                         t.setTagUnit(tagUnit);
                     }

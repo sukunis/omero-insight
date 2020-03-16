@@ -17,4 +17,13 @@ public class ModuleTreeParser {
         ModuleContentParser mc_parser = new ModuleContentParser();
         return new ModuleTreeElement(type,null,index,mc_parser.parseFromConfig(eElem,type,true,null),parent);
     }
+
+    public ModuleTreeElement getModuleTreeElementData(Element eElem,DefaultMutableTreeNode parent)
+    {
+        String type = eElem.getAttribute(ATTR_TYPE);
+        String index = eElem.getAttribute(ATTR_ID);
+        ModuleContentParser mc_parser = new ModuleContentParser();
+
+        return new ModuleTreeElement(type,null,index,mc_parser.parseDataFromConfig(eElem,type,true,null),parent);
+    }
 }

@@ -1,6 +1,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.mde.util.inout;
 
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleContent;
+import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleController;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.util.TagData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,6 +60,22 @@ public class ModuleContentParser {
 
         return mc;
     }
+
+    /**
+     * Parse only tagdata from given element. Ignore object configuration changes.
+     * @param eElement
+     * @param type
+     * @param pre
+     * @param parents
+     * @return
+     */
+    public ModuleContent parseDataFromConfig(Element eElement,String type,boolean pre,String[] parents) {
+        ModuleContent mc = ModuleController.getInstance().getContentOfType(type);
+        mc.setParents(parents);
+        mc.setData(elementsToTagDataList(eElement.getElementsByTagName(ELEM_TAGDATA),type,pre));
+        return mc;
+    }
+
 
     /**
      * Parse list of {@link TagData} from given NodeList

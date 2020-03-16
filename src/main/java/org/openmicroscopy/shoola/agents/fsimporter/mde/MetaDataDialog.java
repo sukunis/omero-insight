@@ -202,10 +202,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 * @param importerAction
 	 *            The cancel-all-imports action.
 	 * @param microscope TODO
-	 * @param selectedContainer
-	 *            The selected container if any.
-	 * @param objects
-	 *            The possible objects.
+	 *
 	 */
 	public MetaDataDialog(JFrame owner, FileFilter[] filters, int type,
 			ImporterAction importerAction, Importer importer,JButton importBtn,JButton cancelImportBtn,
@@ -270,8 +267,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 	/**
 	 * Init gui components like workstation and buttons, filetree, seriesList and metadataview
-	 * @param filters
-	 * @param importerAction
 	 * @param microscope
 	 */
 	private void initComponents(String microscope)
@@ -287,13 +282,13 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 		resetFileDataButton.addActionListener(this);
 		resetFileDataButton.setEnabled(false);
 
-		loadTemplate = new JButton("Load Template...");
+		loadTemplate = new JButton("Load...");
 		loadTemplate.setBackground(UIUtilities.BACKGROUND);
 		loadTemplate.setActionCommand(""+ LOAD_TEMPLATE);
 		loadTemplate.addActionListener(this);
 		loadTemplate.setEnabled(true);
 
-		saveTemplate = new JButton("Save As Template...");
+		saveTemplate = new JButton("Save...");
 		saveTemplate.setBackground(UIUtilities.BACKGROUND);
 		saveTemplate.setActionCommand(""+ SAVE_TEMPLATE);
 		saveTemplate.addActionListener(this);
@@ -418,6 +413,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	private JPanel buildToolBarTemplate() {
 		JPanel bar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		//      bar.add(Box.createHorizontalGlue());
+		bar.add(new JLabel("Metadata:"));
 		bar.add(loadTemplate);
 		bar.add(saveTemplate);
 		return bar;
@@ -552,8 +548,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 * Load data for DIR.
 	 * @param node
 	 * @param file
-	 * @param parentModel
-	 * @param showPreValues TODO
 	 */
 	private void loadDataForDirectory(FNode node, String file,DefaultMutableTreeNode pTree) throws Exception
 	{

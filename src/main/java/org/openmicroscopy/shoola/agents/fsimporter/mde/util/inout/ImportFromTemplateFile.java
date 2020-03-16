@@ -114,7 +114,6 @@ public class ImportFromTemplateFile {
                     generateXMLObjectList(filter,((Element)conf.item(0)).getElementsByTagName(ELEM_OBJECT_PRE));
                     DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ModuleTreeElement(null,null));
                     this.tempObjTree =elementsToObjTree(((Element) conf.item(0)).getElementsByTagName(ELEM_ROOT),root,filter);
-                    ModuleTree.printTree(tempObjTree,"");
                 }else {
                     ImporterAgent.getRegistry().getLogger().info(this,"[MDE] no object defined in mde template file");
                 }
@@ -307,7 +306,7 @@ public class ImportFromTemplateFile {
         if (eElement.getNodeName().equals(ELEM_OBJECT_PRE) && eElement.getNodeType() == Node.ELEMENT_NODE) {
             String type = eElement.getAttribute(ATTR_TYPE);
 
-            ModuleTreeElement mte = new ModuleTreeParser().getModuleTreeElement(eElement, parent);
+            ModuleTreeElement mte = new ModuleTreeParser().getModuleTreeElementData(eElement, parent);
             System.out.println("Create Node: " + mte.getType());
             thisNode = new DefaultMutableTreeNode(mte);
             NodeList childs = eElement.getElementsByTagName(ELEM_CHILD);
