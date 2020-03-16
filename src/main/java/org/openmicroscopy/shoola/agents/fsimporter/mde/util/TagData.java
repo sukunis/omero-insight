@@ -961,6 +961,15 @@ public class TagData
 	private void setTagData(ome.model.units.Unit[] u) {
 		if(u==null || u.length==0)
 			return;
+		// check dimensions
+		if(unitSymbol.length<u.length){
+			unitSymbol=new String[u.length];
+		}
+		if(value.length<u.length){
+			value=new String[u.length];
+		}
+
+		System.out.println("Size Value: "+value.length+", Size unit: "+unitSymbol.length+", Size unit in: "+u.length);
 		for(int i=0; i<u.length; i++) {
 			if(u[i]!=null) {
 				value[i]=String.valueOf(u[i].getValue());

@@ -21,9 +21,10 @@ public class TagDataParser {
      * {@code
      * <TagData Name="" Type="" Visible="" Value="" Unit="" DefaultValues="">
      * }
-     * @param t
-     * @param doc
-     * @param elemName
+     * @param t given TagData
+     * @param doc owning xml document
+     * @param elemName element name
+     * @param saveVal true if also tagdata value should saved
      * @return
      */
     public Element createXMLElem(TagData t, Document doc, String elemName,boolean saveVal) {

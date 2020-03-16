@@ -279,7 +279,7 @@ public class TemplateDialog extends JDialog implements ActionListener{
 	}
 
     public Boolean loadTreeStructure() {
-		return cb_loadObjectData.isSelected();
+		return cb_loadTreeStructure.isSelected();
     }
 }
 

@@ -1308,7 +1308,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	/**
 	 * Read meta data from given file into OMEXMLMetadata format and set it as the MetadataStore
 	 * for given reader. Set global ome as MetadataRetrieve OMEXMLRoot.
-	 * @param path of source image file
+	 * @param fName of source image file
 	 * @return metadata as OMEXMLMetadata format
 	 */
 	private OME createMetadataReader(String fName)

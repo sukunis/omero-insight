@@ -30,7 +30,7 @@ public class ModuleContentParser {
      * }</pre>
      * @param c    {@link ModuleContent} object holds instrument values
      * @param idx value for attribute id
-     * @param doc
+     * @param doc owning xml document
      * @param elemName name of generated element
      */
     public Element createXMLElem(ModuleContent c, String idx, Document doc,String elemName,boolean saveVal) {
@@ -46,33 +46,33 @@ public class ModuleContentParser {
             return result;
         //add tagData
         TagDataParser td_parser=new TagDataParser();
-        for(int i=0;i<list.size();i++) {
-            Element child = td_parser.createXMLElem(list.get(i), doc,ELEM_TAGDATA,saveVal);
-            if(child!=null)
+        for (TagData tagData : list) {
+            Element child = td_parser.createXMLElem(tagData, doc, ELEM_TAGDATA, saveVal);
+            if (child != null)
                 result.appendChild(child);
         }
         return result;
     }
 
     public ModuleContent parseFromConfig(Element eElement,String type,boolean pre,String[] parents) {
-        ModuleContent mc = new ModuleContent(
+        return new ModuleContent(
                 elementsToTagDataList(eElement.getElementsByTagName(ELEM_TAGDATA), type,pre), type, parents);
-
-        return mc;
     }
 
     /**
      * Parse only tagdata from given element. Ignore object configuration changes.
-     * @param eElement
-     * @param type
+     * @param eElement given xml element
+     * @param type type of ModuleContent
      * @param pre
      * @param parents
-     * @return
+     * @return ModuleContent parse from given element
      */
     public ModuleContent parseDataFromConfig(Element eElement,String type,boolean pre,String[] parents) {
         ModuleContent mc = ModuleController.getInstance().getContentOfType(type);
-        mc.setParents(parents);
-        mc.setData(elementsToTagDataList(eElement.getElementsByTagName(ELEM_TAGDATA),type,pre));
+        if(mc!=null) {
+            mc.setParents(parents);
+            mc.setData(elementsToTagDataList(eElement.getElementsByTagName(ELEM_TAGDATA), type, pre));
+        }
         return mc;
     }
 
