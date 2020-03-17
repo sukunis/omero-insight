@@ -63,7 +63,6 @@ public class TagDataParser {
 
             boolean standardConstr=true;
             if (tagType.equals(TagData.ARRAYFIELDS) ){
-                System.out.println("Set tagUnit: " + tagUnit + " Field: " + tagName + " Value: " + tagVal );
                 if(tagVal!=null && tagVal.length()>0) {
                     standardConstr=false;
                     String[] values=tagVal.split(",");

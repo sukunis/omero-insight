@@ -19,7 +19,6 @@
 
 package org.openmicroscopy.shoola.agents.fsimporter.mde;
 
-import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -77,18 +76,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import ome.xml.model.Experimenter;
-import ome.xml.model.Project;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.MapAnnotationData;
-import omero.model.MapAnnotation;
-import omero.model.MapAnnotationI;
-import omero.model.NamedValue;
-
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
 import loci.common.services.ServiceFactory;
-import loci.formats.FormatException;
 import loci.formats.ImageReader;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.meta.MetadataStore;
@@ -691,7 +679,8 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 		}
 	}
 
-	private void updateObjectTreeByData(FNode node, DefaultMutableTreeNode newTreeRoot){
+	private void updateObjectTreeByData(FNode node, DefaultMutableTreeNode newTreeRoot,
+										List<String> filter){
 		if(node==null || newTreeRoot==null)
 			return;
 		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] update object tree by data");
@@ -703,8 +692,11 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			Enumeration e = newTreeRoot.breadthFirstEnumeration();
 			while(e.hasMoreElements()) {
 				DefaultMutableTreeNode n = (DefaultMutableTreeNode) e.nextElement();
-				if(n.getUserObject()!=null && ((ModuleTreeElement) n.getUserObject()).getData()!=null )
-					((ModuleTreeElement) n.getUserObject()).getData().setAllDataChanged();
+				if(n.getUserObject()!=null && ((ModuleTreeElement) n.getUserObject()).getData()!=null ) {
+					if(filter.contains(((ModuleTreeElement) n.getUserObject()).getType())) {
+						((ModuleTreeElement) n.getUserObject()).getData().setAllDataChanged();
+					}
+				}
 			}
 
 			// save input of new tree
@@ -942,39 +934,47 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 				DefaultMutableTreeNode root = getCurrentModuleTreeRoot();
 				TemplateDialog jsonDialog=new TemplateDialog(new JFrame(),tempFile,false,root);
-				List<String> selectedModules=jsonDialog.getSelection();
-				tempFile= jsonDialog.getDestination();
-				setTemplateName(tempFile);
+				if(!jsonDialog.isCancelled()) {
+					List<String> selectedModules = jsonDialog.getSelection();
+					tempFile = jsonDialog.getDestination();
+					setTemplateName(tempFile);
 
-				if(selectedModules!=null && tempFile!=null) {
-					ImporterAgent.getRegistry().getLogger().debug(this, "TODO: Save to tempfile: "+tempFile.getAbsolutePath());
-					ExportAsTemplateFile exporter=new ExportAsTemplateFile(tempFile.getAbsolutePath());
-					exporter.export(root,selectedModules);
-				}else{
-					ImporterAgent.getRegistry().getLogger().debug(this, "WARN: Export failed !");
+					if (selectedModules != null && tempFile != null) {
+						ImporterAgent.getRegistry().getLogger().debug(this, "TODO: Save to tempfile: " + tempFile.getAbsolutePath());
+						ExportAsTemplateFile exporter = new ExportAsTemplateFile(tempFile.getAbsolutePath());
+						exporter.export(root, selectedModules);
+					} else {
+						ImporterAgent.getRegistry().getLogger().debug(this, "WARN: Export failed !");
+					}
 				}
 				break;
+
 
 			case LOAD_TEMPLATE:
 				DefaultMutableTreeNode thisroot = getCurrentModuleTreeRoot();
 				TemplateDialog openF=new TemplateDialog(new JFrame(),tempFile,true,thisroot);
-				List<String> selectedModulesO=openF.getSelection();
-				tempFile= openF.getDestination();
-				Boolean loadTreeStructure = openF.loadTreeStructure();
-				setTemplateName(tempFile);
-				FNode thisNode = (FNode)fileTree.getLastSelectedPathComponent();
+				if(!openF.isCancelled()) {
+					List<String> selectedModulesO = openF.getSelection();
 
-				ImportFromTemplateFile importer=new ImportFromTemplateFile(tempFile.getAbsolutePath());
-				importer.parseTemplateFile(selectedModulesO);
-				DefaultMutableTreeNode newTree = importer.getTempObjTree();
-				if(loadTreeStructure){
-					updateObjectTreeByTree(thisNode,newTree);
-				}else{
-					updateObjectTreeByData(thisNode,newTree);
+					tempFile = openF.getDestination();
+					if (tempFile == null)
+						return;
+					Boolean loadTreeStructure = openF.loadTreeStructure();
+
+					setTemplateName(tempFile);
+					FNode thisNode = (FNode) fileTree.getLastSelectedPathComponent();
+
+					ImportFromTemplateFile importer = new ImportFromTemplateFile(tempFile.getAbsolutePath());
+					importer.parseTemplateFile(selectedModulesO);
+					DefaultMutableTreeNode newTree = importer.getTempObjTree();
+					if (loadTreeStructure) {
+						updateObjectTreeByTree(thisNode, newTree);
+					} else {
+						updateObjectTreeByData(thisNode, newTree, selectedModulesO);
+					}
+					if (thisNode != null)
+						showMDE(thisNode.getContainer(), null);
 				}
-
-				if(thisNode!=null)
-					showMDE(thisNode.getContainer(),null);
 				break;
 			case CMD_HARDCONF:
 				HardwareConfigurator conf=new HardwareConfigurator(this);

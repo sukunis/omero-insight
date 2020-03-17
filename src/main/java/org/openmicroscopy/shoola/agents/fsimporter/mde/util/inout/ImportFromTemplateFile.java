@@ -111,7 +111,7 @@ public class ImportFromTemplateFile {
 
                 NodeList conf=doc.getElementsByTagName(MDE_TEMPLATE);
                 if(conf!=null && conf.getLength()>0) {
-                    generateXMLObjectList(filter,((Element)conf.item(0)).getElementsByTagName(ELEM_OBJECT_PRE));
+                    generateXMLObjectList(((Element)conf.item(0)).getElementsByTagName(ELEM_OBJECT_PRE));
                     DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ModuleTreeElement(null,null));
                     this.tempObjTree =elementsToObjTree(((Element) conf.item(0)).getElementsByTagName(ELEM_ROOT),root,filter);
                 }else {
@@ -125,10 +125,9 @@ public class ImportFromTemplateFile {
 
     /**
      * generate hashmap of xml elements objectPre group by type
-     * @param filter
      * @param nodeList
      */
-    private void generateXMLObjectList(List<String> filter, NodeList nodeList) {
+    private void generateXMLObjectList(NodeList nodeList) {
         xmlObjectPreList=new HashMap<>();
         if(nodeList==null)
             return ;
@@ -139,7 +138,7 @@ public class ImportFromTemplateFile {
                 Element eElement = (Element) n;
                 String type = eElement.getAttribute(ATTR_TYPE);
 
-                if (type != null && !type.isEmpty() && filter.contains(type)) {
+                if (type != null && !type.isEmpty()) {
                     if (xmlObjectPreList.containsKey(type)) {
                         List elemList = xmlObjectPreList.get(type);
                         elemList.add(eElement);
@@ -279,13 +278,13 @@ public class ImportFromTemplateFile {
             Node n=nodeList.item(i);
             if(n.getNodeName().equals(ELEM_ROOT) && n.getNodeType()==Node.ELEMENT_NODE) {
                 Element eElement=(Element)n;
-                if(filter !=null && filter.contains(eElement.getAttribute(ATTR_TYPE))) {
-                    Element objPre = getObject(eElement.getAttribute(ATTR_TYPE),eElement.getAttribute(ATTR_UUID));
-                    DefaultMutableTreeNode subTree = createObjectSubTree(objPre,root,filter);
-                    if(subTree!=null) {
-                        root.add(subTree);
-                    }
+
+                Element objPre = getObject(eElement.getAttribute(ATTR_TYPE),eElement.getAttribute(ATTR_UUID));
+                DefaultMutableTreeNode subTree = createObjectSubTree(objPre,root,filter);
+                if(subTree!=null) {
+                    root.add(subTree);
                 }
+
             }
         }
         return root;
@@ -306,27 +305,31 @@ public class ImportFromTemplateFile {
         if (eElement.getNodeName().equals(ELEM_OBJECT_PRE) && eElement.getNodeType() == Node.ELEMENT_NODE) {
             String type = eElement.getAttribute(ATTR_TYPE);
 
-            ModuleTreeElement mte = new ModuleTreeParser().getModuleTreeElementData(eElement, parent);
-            System.out.println("Create Node: " + mte.getType());
+            ModuleTreeElement mte = new ModuleTreeParser().getModuleTreeElementData(eElement, parent,filter.contains(type));
+            System.out.println("Create Node: " + mte.getType()+" -- withData: "+filter.contains(type));
             thisNode = new DefaultMutableTreeNode(mte);
             NodeList childs = eElement.getElementsByTagName(ELEM_CHILD);
             if (childs != null) {
                 for (int i = 0; i < childs.getLength(); i++) {
                     Element child = (Element) childs.item(i);
-
-                    if (filter != null && filter.contains(child.getAttribute(ATTR_TYPE))) {
-                        Element childObjPre = getObject(child.getAttribute(ATTR_TYPE),child.getAttribute(ATTR_UUID));
-                        DefaultMutableTreeNode subTree = createObjectSubTree(childObjPre, thisNode, filter);
-                        if (subTree != null) {
-                            thisNode.add(subTree);
-                        }
+                    Element childObjPre = getObject(child.getAttribute(ATTR_TYPE),child.getAttribute(ATTR_UUID));
+                    DefaultMutableTreeNode subTree = createObjectSubTree(childObjPre, thisNode, filter);
+                    if (subTree != null) {
+                        thisNode.add(subTree);
                     }
+
                 }
             }
         }
         return thisNode;
     }
 
+    /**
+     *
+     * @param type of object
+     * @param uuid of object
+     * @return xml element from ObjectPre list of given type with specified uuid
+     */
     private Element getObject(String type,String uuid) {
         if(xmlObjectPreList==null)
             return null;

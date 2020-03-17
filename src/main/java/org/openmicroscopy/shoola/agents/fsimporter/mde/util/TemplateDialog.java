@@ -60,7 +60,7 @@ public class TemplateDialog extends JDialog implements ActionListener{
 	private File tempFile;
 	private final String suffix=".xml";
 	private DefaultMutableTreeNode tree;
-	
+	private boolean cancel;
 
 	private JButton btn_browse_load;
 
@@ -70,7 +70,7 @@ public class TemplateDialog extends JDialog implements ActionListener{
 		super(parent,"");
 		this.tempFile=tempFile;
 		this.tree=root;
-
+		cancel =false;
 		if(load) {
 			this.setTitle("Load Metadata from Template File ");
 			buildGUI_loadFile();
@@ -226,6 +226,8 @@ public class TemplateDialog extends JDialog implements ActionListener{
 					System.out.println("\t" + s);
 			}
 		}else if(e.getSource()== btn_cancel) {
+			System.out.println("Cancel load template");
+			cancel =true;
 			moduleList=null;
 			setVisible(false);
 			dispose();
@@ -281,5 +283,7 @@ public class TemplateDialog extends JDialog implements ActionListener{
     public Boolean loadTreeStructure() {
 		return cb_loadTreeStructure.isSelected();
     }
+    public Boolean isCancelled(){return cancel;}
+
 }
 

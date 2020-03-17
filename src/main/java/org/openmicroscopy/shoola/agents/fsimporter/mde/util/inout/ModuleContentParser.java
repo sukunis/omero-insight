@@ -65,9 +65,10 @@ public class ModuleContentParser {
      * @param type type of ModuleContent
      * @param pre
      * @param parents
+     * @param getdata true: load data value from element, false: return empty modulcontent for given type
      * @return ModuleContent parse from given element
      */
-    public ModuleContent parseDataFromConfig(Element eElement,String type,boolean pre,String[] parents) {
+    public ModuleContent parseDataFromConfig(Element eElement,String type,boolean pre,String[] parents,boolean getdata) {
         ModuleContent mc = ModuleController.getInstance().getContentOfType(type);
         if(mc!=null) {
             mc.setParents(parents);

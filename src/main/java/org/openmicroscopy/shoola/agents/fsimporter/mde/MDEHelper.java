@@ -27,22 +27,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreePath;
 
-import ome.xml.model.LightPath;
 import ome.xml.model.Dichroic;
 import ome.xml.model.Filter;
 import ome.xml.model.enums.FilterType;
-import ome.xml.model.FilterSet;
 
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleConfiguration;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleContent;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleController;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleTreeElement;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.configuration.TagNames;
-import org.openmicroscopy.shoola.agents.fsimporter.mde.util.ImportUserData;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.util.TagData;
 
 /**
@@ -509,20 +503,21 @@ public class MDEHelper {
 	}
 	
 	/**
-	 * Add data in tree with entries in input, marke it as data has change
+	 * Add data in tree with entries in input, mark it as data has change
 	 * @param tree
 	 * @param input list of nodepath,list(tagData)
 	 */
-	public static void addData(DefaultMutableTreeNode tree,HashMap<String, List<TagData>> input) {
+	public static void addData(DefaultMutableTreeNode tree, HashMap<String, List<TagData>> input) {
 		for(Entry<String, List<TagData>> entry : input.entrySet()) {
 			DefaultMutableTreeNode node = getNodeByPath(tree, entry.getKey(), false);
 			if(node!=null) {
 				System.out.println("Add data for node: "+entry.getKey());
 				ModuleContent c=((ModuleTreeElement) node.getUserObject()).getData();
 				for(TagData t:entry.getValue()) {
-					TagData newT=new TagData(t);
-					newT.dataHasChanged(true);
-					c.set(t.getTagName(), newT);
+						TagData newT = new TagData(t);
+						newT.dataHasChanged(true);
+						c.set(t.getTagName(), newT);
+
 				}
 			}
 		}

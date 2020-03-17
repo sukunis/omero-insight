@@ -969,7 +969,6 @@ public class TagData
 			value=new String[u.length];
 		}
 
-		System.out.println("Size Value: "+value.length+", Size unit: "+unitSymbol.length+", Size unit in: "+u.length);
 		for(int i=0; i<u.length; i++) {
 			if(u[i]!=null) {
 				value[i]=String.valueOf(u[i].getValue());
