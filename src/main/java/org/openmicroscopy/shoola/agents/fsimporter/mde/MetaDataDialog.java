@@ -19,7 +19,6 @@
 
 package org.openmicroscopy.shoola.agents.fsimporter.mde;
 
-import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -82,18 +81,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import ome.xml.model.Experimenter;
-import ome.xml.model.Project;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.MapAnnotationData;
-import omero.model.MapAnnotation;
-import omero.model.MapAnnotationI;
-import omero.model.NamedValue;
-
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
 import loci.common.services.ServiceFactory;
-import loci.formats.FormatException;
 import loci.formats.ImageReader;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.meta.MetadataStore;
@@ -180,7 +168,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 	private ModuleController controller;
 
-	private DefaultMutableTreeNode contentTree;
 	private ModuleList fileInstrumentList;
 	/** template file handle */
 	private File tempFile;
@@ -207,10 +194,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 * @param importerAction
 	 *            The cancel-all-imports action.
 	 * @param microscope TODO
-	 * @param selectedContainer
-	 *            The selected container if any.
-	 * @param objects
-	 *            The possible objects.
 	 */
 	public MetaDataDialog(JFrame owner, FileFilter[] filters, int type,
 			ImporterAction importerAction, Importer importer,JButton importBtn,JButton cancelImportBtn,
@@ -243,8 +226,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			tempFile=new File(getTemplateName());
 		}
 
-
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Load microscope conf: "+microscope);
 		initMDE(microscope);
 	}
 
@@ -275,8 +256,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 	/**
 	 * Init gui components like workstation and buttons, filetree, seriesList and metadataview
-	 * @param filters
-	 * @param importerAction
 	 * @param microscope
 	 */
 	private void initComponents(String microscope)
@@ -467,16 +446,16 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 * 		Parent data overwrite this file data.
 	 * @param node selected node in the filetree
 	 * @param reload TODO
+	 * @return parent object tree of selected node
 	 */
 	private DefaultMutableTreeNode loadDataForSelection(FNode node, boolean reload)
 	{
-		ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] load data for selected node");
 		String file=null;
 		if(node==null || (file=fileTree.getSelectedFilePath(node))==null)
 			return null;
 
 		DefaultMutableTreeNode pTree=null;
-		HashMap<String,List<TagData>> input=null;
+		HashMap<String,List<TagData>> parentinput=null;
 		
 		if(node.getContainer()==null || node.getContainer().getTreeNode()==null) 
 		{
@@ -484,17 +463,17 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			//get parent tree and data 
 			FNode pNode=getNextParentWithAvailableTree(node);
 			if(pNode!=null && pNode.getContainer()!=null) {
-				ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Use object tree and input of: "+pNode.getAbsolutePath());
+				ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Parent: "+pNode.getAbsolutePath());
 				pTree=pNode.getContainer().getTreeNode();
-				input=pNode.getInput();
+				parentinput=pNode.getInput();
 			}
 			
 			// is selection a file or directory
 			try {
 				if(file.equals("")){
-					loadDataForDirectory(node, file, null );
+					loadDataForDirectory(node);
 				}else{
-					loadDataForFile(file, null, node );
+					loadDataForFile(node );
 
 				}
 			}catch(Exception e){
@@ -505,10 +484,9 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Object tree available for selected node: YES");
 		}
 		//TODO: necessarry at this place to save mapannotation?
-		node.setMapAnnotation(input);
+		node.setAnnotation(parentinput);
 
 		return pTree;
-
 	}
 
 
@@ -536,19 +514,17 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 	/**
 	 * load predefined value, parent, import and model data.
-	 * @param file
-	 * @param pTree
-	 * @param node TODO
+	 * @param node current node
 	 */
-	private void loadDataForFile(String file,DefaultMutableTreeNode pTree, FNode node) throws Exception
+	private void loadDataForFile(FNode node) throws Exception
 	{
 		lastSelectionType=FILE;
 
-		ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load file data");
+		ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load data for: FILE");
 
 		NodeContainer current = node.getContainer();
 
-		NodeContainer cont = new NodeContainer(file, getImportData(), pTree, this, current, false);
+		NodeContainer cont = new NodeContainer(fileTree.getSelectedFilePath(node), null, false);
 		node.setContainer(cont);
 	}
 
@@ -556,19 +532,17 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	/**
 	 * Load data for DIR.
 	 * @param node
-	 * @param file
-	 * @param parentModel
-	 * @param showPreValues TODO
+	 *
 	 */
-	private void loadDataForDirectory(FNode node, String file,DefaultMutableTreeNode pTree) throws Exception
+	private void loadDataForDirectory(FNode node) throws Exception
 	{
 		lastSelectionType=DIR;
 
-		ImporterAgent.getRegistry().getLogger().debug(this, "-- Show dir data \t[MetaDataDialog::loadAndShowDataForDir]");
+		ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load data for: DIR");
 
 		if(node!=null && !node.isLeaf() &&  node.getContainer()==null) {
 			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Create container for node "+node.getAbsolutePath());
-			NodeContainer cont=new NodeContainer(file, getImportData(), pTree, this, node.getContainer(), true);
+			NodeContainer cont=new NodeContainer(fileTree.getSelectedFilePath(node), null, true);
 			node.setContainer(cont);
 		}
 	}
@@ -582,7 +556,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	 */
 	private void deselectNodeAction(FNode node) {
 		if(node!=null){
-			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Deselect node action for "+node.getAbsolutePath());
+			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Deselect node: "+node.getAbsolutePath());
 			if(getCurrentModuleTree()!=null) {
 				DefaultMutableTreeNode contentTree=getCurrentModuleTree().getRoot();
 				// get user input
@@ -590,40 +564,33 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				//ImporterAgent.getRegistry().getLogger().debug(this, MDEHelper.printList("-- input in current content", input));
 
 				if(node.getContainer()!=null) {
-					// save moduletree
-					ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] save contentTree of "+node.getAbsolutePath());
-					//ImporterAgent.getRegistry().getLogger().debug(this, MDEHelper.printList(contentTree, ""));
-
-
+					// save object tree
+					ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] save object tree and instruments");
 					node.getContainer().setTreeNode(contentTree);
 					node.getContainer().setInstruments(fileInstrumentList);
 				}else {
 					try {
 						//create container
-						ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] create new contentTree of "+node.getAbsolutePath());
-						NodeContainer cont=new NodeContainer(node.getAbsolutePath(), getImportData(), contentTree, this, null, !node.isLeaf());
+						ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] create new NodeContainer ");
+						NodeContainer cont=new NodeContainer(node.getAbsolutePath(), contentTree, !node.isLeaf());
 						cont.setInstruments(fileInstrumentList);
 						node.setContainer(cont);
 					}catch(Exception e) {
-					ImporterAgent.getRegistry().getLogger().error(this,"[MDE] Can't create new NodeContainer for saving content for "+node.getAbsolutePath());
+						ImporterAgent.getRegistry().getLogger().error(this,"[MDE] Can't create new NodeContainer for saving content for "+node.getAbsolutePath());
 						e.printStackTrace();
 					}
 				}
-
 
 				//override childs object with new content
 				if(!node.isLeaf()) {
 					saveInputToChilds(node,input,getCurrentModuleTree().changeTreeStructure());
 				}
 
-				//Reset valhasChanged;
-				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] reset input for "+node.getAbsolutePath());
+				//Reset valhasChanged for tagdata;
 				MDEHelper.resetInput(contentTree);
 				getCurrentModuleTree().setChangeTreeStructure(false);
-
-				node.setMapAnnotation(input);
-				ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] save mapannotation for deselected node");
-				//MDEHelper.printList(node.getAbsolutePath(), node.getInput());
+				// save input
+				node.setAnnotation(input);
 			}
 			lastNode=node;
 		}
@@ -645,7 +612,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 					if(input!=null && !input.isEmpty()) {
 						ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] update child: "+child.getAbsolutePath());
 						MDEHelper.replaceData(childTree, input,treeChanges);
-						child.setMapAnnotation(input);
+						child.setAnnotation(input);
 					}
 					// update object tree
 					// changes in object tree of parent dir?
@@ -683,20 +650,24 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	}
 
 
-
+	/**
+	 * Reset object tree to default tree of choosen setup
+	 */
 	private void resetObjectTree() {
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] PRESS RESET object tree");
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] reset object tree");
 		ModuleTree treePanel=getCurrentModuleTree();
 		DefaultMutableTreeNode initRoot= getInitialFileObjectRootNode();
 		if(initRoot == null)
 			initRoot=controller.getTree();
 		if(treePanel!=null) {
-			// reload MDEContent to recover image container contents
-			// first save user input
+			// save user input of current selected node
 			FNode node=((FNode)fileTree.getLastSelectedPathComponent());
-			HashMap<String,List<TagData>> minput=node.getInput();
+			// previous input
+			HashMap<String,List<TagData>> minput = node.getInput();
+			// newest input from MDEContent
 			HashMap<String,List<TagData>> cinput = MDEHelper.getInput(treePanel.getRoot());
-			
+
+			// merge inputs
 			if(minput!=null) {
 				if(cinput==null) {
 					cinput = new HashMap<>();
@@ -800,7 +771,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	}
 
 	/**
-	 * TODO : warn if files selected which will not be imported!
+	 * Refresh file browser view of mde. Rebuild filetree.
 	 * @param files
 	 * @param fileFilter
 	 */
@@ -809,7 +780,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] refresh file view");
 		this.fileFilter=fileFilter;
 		fileTree.setFileFilter(fileFilter);
-			
 
 		metaPanel.removeAll();
 		fileTree.createNodes(files,holdData);
@@ -841,7 +811,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			case CHOOSE_MIC:
 				if(mics.getSelectedIndex()!=-1) {
 					String newSelection=controller.getMicNames()[mics.getSelectedIndex()];
-					ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] load new configuration for "+newSelection);
+					ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] load setup: "+newSelection);
 					setMicroscopeName(newSelection);
 					controller.setCurrentMicName(newSelection);
 					
@@ -871,23 +841,21 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				}
 				break;
 			case CMD_RESET:
-				ImporterAgent.getRegistry().getLogger().info(this,"[MDE] -- reset");
+				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] clear input");
 
 				FNode selection=(FNode)fileTree.getLastSelectedPathComponent();
-				String file = fileTree.getSelectedFilePath(selection);
 
 				resetObjectTree();
 				//clear node model data
 				if(selection!=null) {
 					selection.reset();
-					//TODO get parentTree
+					// reload data
 					try {
 						if(!selection.isLeaf()){
-							loadDataForDirectory(selection, file, null);
+							loadDataForDirectory(selection);
 						}else{
-							loadDataForFile(file, null, selection );
+							loadDataForFile(selection );
 						}
-						//    		((MetaDataView)metaPanel.getComponent(0)).reset();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -992,21 +960,19 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				}
 			}
 
-			if(lastSelectedNode==null)
-				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] INIT ");
 			deselectNodeAction(lastSelectedNode);
 			selectNodeAction(selectedNode);
 		}
 	}
 
 	/**
-	 * Call methods for selected node in the tree.
+	 * Load data for selected node. Enable "Clear Input" button.
 	 * @param selectedNode
 	 */
 	private void selectNodeAction(FNode selectedNode) 
 	{
 		if(selectedNode!=null ){
-			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Select node action for "+selectedNode.getAbsolutePath());
+			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Select node: "+selectedNode.getAbsolutePath());
 
 			resetFileDataButton.setEnabled(true);
 			DefaultMutableTreeNode pTree= loadDataForSelection(selectedNode, false);
@@ -1051,6 +1017,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	@Override
 	public void itemStateChanged(ItemEvent e) 
 	{
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] item state change");
 		if(!disableItemListener) {
 			FNode node=(FNode)fileTree.getLastSelectedPathComponent();
 			String file=fileTree.getSelectedFilePath(node);
@@ -1065,9 +1032,9 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			// is selection a file or directory
 			try{
 				if(file.equals("")){
-					loadDataForDirectory(node, file, null);
+					loadDataForDirectory(node);
 				}else{
-					loadDataForFile(file, null, node);
+					loadDataForFile(node);
 				}
 			}catch(Exception ex){
 				ImporterAgent.getRegistry().getLogger().error(this,"[MDE] can't read METADATA of selection "+node.getAbsolutePath());
@@ -1079,43 +1046,44 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	}
 
 	/**
-	 * Show contentTree and contenData
-	 * @param container TODO
+	 * Show object tree and object data
+	 * @param container for current node
+	 * @param pTree parent object tree of current node
 	 */
 	private void showMDE(NodeContainer container,DefaultMutableTreeNode pTree)
 	{
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] show mde content for selection");
 		metaPanel.removeAll();
 		if(container==null)
 			return;
 
 		MDEContent content=null;
-		DefaultMutableTreeNode contentTree= container.getTreeNode();
+		DefaultMutableTreeNode objectTree= container.getTreeNode();
 		
 		// load node for the first time?
-		if(contentTree == null) {
-			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] no content tree available for selected node ");
+		if(objectTree == null) {
+			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] initial content load: Yes ");
 			//TODO : that should not be the case!! pTree is tree of next available parent tree else standardtree
 			// this is the case at the moment if parent of parent was only select, but not parent
 			if(pTree==null) {
-				contentTree=controller.getTree();
+				// load standard tree for selected setup
+				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] initial load: use setup object tree ");
+				objectTree=controller.getTree();
 			}else {
-				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] use parent tree ");
-				contentTree=ModuleTree.cloneTreeNode(pTree);
+				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] initial load: use parent object tree ");
+				objectTree=ModuleTree.cloneTreeNode(pTree);
 			}
-			//contentTree=controller.cloneTreeStructure(pTree, null);
+
 			if(!container.isDir()) {
 				//load file data
-				content = new MDEContent(createMetadataReader(container.getNodeObject()),contentTree,controller,this);
+				content = new MDEContent(createMetadataReader(container.getNodeObject()),objectTree,controller,this);
 			}else {
-				content = new MDEContent(contentTree,controller,container.isDir(),null,this);
+				content = new MDEContent(objectTree,controller,container.isDir(),null,this);
 			}
 		}else {
-			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] use available content tree");
+			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] initial content load: No ");
 //			ModuleTree.printTree(contentTree, "");
-			content = new MDEContent(contentTree,controller,container.isDir(),container.getInstruments(),this);
+			content = new MDEContent(objectTree,controller,container.isDir(),container.getInstruments(),this);
 		}
-		contentTree=content.getRootNode();
 		fileInstrumentList=content.getInstrumentList();
 		// load user input
 		metaPanel.add(content,BorderLayout.CENTER);
@@ -1124,6 +1092,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	}
 
 	/**
+	 * Get the ModuleTree of current loaded MDEContent.
 	 * @return a handle to current object tree
 	 */
 	private ModuleTree getCurrentModuleTree() {
@@ -1264,7 +1233,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	/**
 	 * Read meta data from given file into OMEXMLMetadata format and set it as the MetadataStore
 	 * for given reader. Set global ome as MetadataRetrieve OMEXMLRoot.
-	 * @param path of source image file
+	 * @param fName of source image file
 	 * @return metadata as OMEXMLMetadata format
 	 */
 	private OME createMetadataReader(String fName)
