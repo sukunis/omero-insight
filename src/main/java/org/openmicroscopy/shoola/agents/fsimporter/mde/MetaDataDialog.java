@@ -689,10 +689,8 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 			// save input of new tree
 			HashMap<String,List<TagData>> cinput = MDEHelper.getInput(newTreeRoot);
 			if(cinput==null) {
-				System.out.println("--------- get input of new tree from file: null ---------------");
 				return;
 			}
-			System.out.println("--------- get input of new tree from file: "+cinput.size()+" ---------------");
 
 			// set data of new tree
 			MDEHelper.addData(tree, cinput);

@@ -94,8 +94,6 @@ public class TypeFilter_GUI extends JDialog implements ActionListener {
     }
 
     private void generateListFromFile(String path) {
-
-System.out.println("Generate list from file");
         ImportFromTemplateFile importer=new ImportFromTemplateFile(path);
         List<String> list=importer.createTypeList();
         if(list !=null) {
@@ -110,7 +108,6 @@ System.out.println("Generate list from file");
     }
 
     private void generateListFromTree(DefaultMutableTreeNode root) {
-        System.out.println("Generate list from tree");
         List<String> list = MDEHelper.getTypes(root);
         if(list !=null) {
             for (String type : list) {
@@ -141,10 +138,8 @@ System.out.println("Generate list from file");
                 selectAll(btn_select_all.isSelected());
             }else if(((JCheckBox)e.getSource()).isSelected()) {
                 filterList.add(((JCheckBox) e.getSource()).getText());
-                System.out.println("TypeFilter_GUI: add "+ ((JCheckBox) e.getSource()).getText());
             }else if(!((JCheckBox)e.getSource()).isSelected()){
                 filterList.remove(((JCheckBox) e.getSource()).getText());
-                System.out.println("TypeFilter_GUI: remove "+ ((JCheckBox) e.getSource()).getText());
             }
 
         }
