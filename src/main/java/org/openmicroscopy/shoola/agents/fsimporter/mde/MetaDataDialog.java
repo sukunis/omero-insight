@@ -963,7 +963,9 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 					setTemplateName(tempFile);
 					FNode thisNode = (FNode) fileTree.getLastSelectedPathComponent();
-
+					// save input and instruments of current selection
+					deselectNodeAction(thisNode);
+					
 					ImportFromTemplateFile importer = new ImportFromTemplateFile(tempFile.getAbsolutePath());
 					importer.parseTemplateFile(selectedModulesO);
 					ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load from tempfile: " + tempFile.getAbsolutePath());
