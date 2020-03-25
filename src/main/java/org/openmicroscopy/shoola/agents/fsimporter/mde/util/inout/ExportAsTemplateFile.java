@@ -212,7 +212,7 @@ public class ExportAsTemplateFile {
                     root.appendChild(childObj);
                 }
             }
-            ImporterAgent.getRegistry().getLogger().debug(null, "\nadd to template "+ node.getUserObject().toString());
+            //ImporterAgent.getRegistry().getLogger().debug(null, "\nadd to template "+ node.getUserObject().toString());
             root.appendChild(nodeObj);
         }
         return nodeObj;
