@@ -940,11 +940,11 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 					setTemplateName(tempFile);
 
 					if (selectedModules != null && tempFile != null) {
-						ImporterAgent.getRegistry().getLogger().debug(this, "TODO: Save to tempfile: " + tempFile.getAbsolutePath());
+						ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Save to tempfile: " + tempFile.getAbsolutePath());
 						ExportAsTemplateFile exporter = new ExportAsTemplateFile(tempFile.getAbsolutePath());
 						exporter.export(root, selectedModules);
 					} else {
-						ImporterAgent.getRegistry().getLogger().debug(this, "WARN: Export failed !");
+						ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] WARN: Export failed !");
 					}
 				}
 				break;
@@ -966,6 +966,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 
 					ImportFromTemplateFile importer = new ImportFromTemplateFile(tempFile.getAbsolutePath());
 					importer.parseTemplateFile(selectedModulesO);
+					ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load from tempfile: " + tempFile.getAbsolutePath());
 					DefaultMutableTreeNode newTree = importer.getTempObjTree();
 					if (loadTreeStructure) {
 						updateObjectTreeByTree(thisNode, newTree);
