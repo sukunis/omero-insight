@@ -521,8 +521,6 @@ public class MDEConfiguration {
 											insertAtNode.add(new DefaultMutableTreeNode(choice));
 										}
 									}
-								}else{
-									System.out.println("-- childs of type "+entry.getKey()+" still exists");
 								}
 							}
 						}

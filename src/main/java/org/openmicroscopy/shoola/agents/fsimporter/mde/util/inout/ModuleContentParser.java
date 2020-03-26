@@ -63,7 +63,7 @@ public class ModuleContentParser {
         result.setAttribute(ATTR_TYPE, c.getType());
 
         List<TagData> list= c.getTagList();
-        if(list == null)
+        if(list == null || !saveVal)
             return result;
         //add tagData
         TagDataParser td_parser=new TagDataParser();
@@ -93,7 +93,10 @@ public class ModuleContentParser {
         ModuleContent mc = ModuleController.getInstance().getContentOfType(type);
         if(mc!=null) {
             mc.setParents(parents);
-            mc.setData(elementsToTagDataList(eElement.getElementsByTagName(ELEM_TAGDATA), type, pre));
+            if(getdata)
+                mc.setData(elementsToTagDataList(eElement.getElementsByTagName(ELEM_TAGDATA), type, pre));
+            else
+                mc.setData(null);
         }
         return mc;
     }

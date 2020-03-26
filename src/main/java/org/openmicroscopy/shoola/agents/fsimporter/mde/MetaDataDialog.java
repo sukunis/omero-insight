@@ -921,7 +921,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				DefaultMutableTreeNode root = getCurrentModuleTreeRoot();
 				TemplateDialog jsonDialog=new TemplateDialog(new JFrame(),tempFile,false,root);
 				if(!jsonDialog.isCancelled()) {
-					List<String> selectedModules = jsonDialog.getSelection();
+					List<String> selectedModules = jsonDialog.getSelectionSave();
 					tempFile = jsonDialog.getDestination();
 					setTemplateName(tempFile);
 
@@ -940,7 +940,9 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				DefaultMutableTreeNode thisroot = getCurrentModuleTreeRoot();
 				TemplateDialog openF=new TemplateDialog(new JFrame(),tempFile,true,thisroot);
 				if(!openF.isCancelled()) {
-					List<String> selectedModulesO = openF.getSelection();
+					ImportFromTemplateFile importer = new ImportFromTemplateFile(tempFile.getAbsolutePath());
+					List<String> availableTypelist=importer.createTypeList();
+					List<String> selectedModulesO = openF.getSelectionLoad(availableTypelist);
 
 					tempFile = openF.getDestination();
 					if (tempFile == null)
@@ -952,7 +954,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 					// save input and instruments of current selection
 					deselectNodeAction(thisNode);
 					
-					ImportFromTemplateFile importer = new ImportFromTemplateFile(tempFile.getAbsolutePath());
+
 					importer.parseTemplateFile(selectedModulesO);
 					ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load from tempfile: " + tempFile.getAbsolutePath());
 					DefaultMutableTreeNode newTree = importer.getTempObjTree();
