@@ -506,7 +506,6 @@ public class MDEConfiguration {
 							for(DefaultMutableTreeNode insertAtNode:insertAtNodeList) {
 								// Test if this kind of child still exists
 								if(MDEHelper.getListOfChilds(entry.getKey(),insertAtNode)==null ) {
-									System.out.println("### Insert object " + entry.getKey() + " at node " + insertAtNode.getUserObject().toString());
 									ModuleContent c = getContent(micName, entry.getKey());
 
 									// it is allowed to insert object at this point?
@@ -521,8 +520,6 @@ public class MDEConfiguration {
 											insertAtNode.add(new DefaultMutableTreeNode(choice));
 										}
 									}
-								}else{
-									System.out.println("-- childs of type "+entry.getKey()+" still exists");
 								}
 							}
 						}

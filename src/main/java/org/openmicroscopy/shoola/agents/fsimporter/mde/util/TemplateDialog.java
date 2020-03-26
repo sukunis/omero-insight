@@ -212,21 +212,11 @@ public class TemplateDialog extends JDialog implements ActionListener{
 		}else if(e.getSource()==btn_filter_load){
 			TypeFilter_GUI filterGUI = new TypeFilter_GUI(new JFrame(),tempFile.getAbsolutePath());
 			moduleList=filterGUI.getTypeFilter();
-			System.out.println("Filter:");
-			if(moduleList!=null) {
-				for (String s : moduleList)
-					System.out.println("\t" + s);
-			}
 		}else if(e.getSource()==btn_filter_save){
 			TypeFilter_GUI filterGui = new TypeFilter_GUI(new JFrame(),tree);
 			moduleList=filterGui.getTypeFilter();
-			System.out.println("Filter:");
-			if(moduleList!=null) {
-				for (String s : moduleList)
-					System.out.println("\t" + s);
-			}
+
 		}else if(e.getSource()== btn_cancel) {
-			System.out.println("Cancel load template");
 			cancel =true;
 			moduleList=null;
 			setVisible(false);

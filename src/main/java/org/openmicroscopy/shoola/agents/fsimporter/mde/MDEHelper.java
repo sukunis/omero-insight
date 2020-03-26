@@ -511,7 +511,6 @@ public class MDEHelper {
 		for(Entry<String, List<TagData>> entry : input.entrySet()) {
 			DefaultMutableTreeNode node = getNodeByPath(tree, entry.getKey(), false);
 			if(node!=null) {
-				System.out.println("Add data for node: "+entry.getKey());
 				ModuleContent c=((ModuleTreeElement) node.getUserObject()).getData();
 				for(TagData t:entry.getValue()) {
 						TagData newT = new TagData(t);

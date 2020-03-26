@@ -154,7 +154,7 @@ public class ImportFromTemplateFile {
                 }
             }
         }
-        System.out.println("Types in template: "+xmlObjectPreList.keySet());
+        //System.out.println("Types in template: "+xmlObjectPreList.keySet());
     }
 
 
@@ -178,7 +178,6 @@ public class ImportFromTemplateFile {
                     ModuleTreeElement mte = new ModuleTreeParser().getModuleTreeElement(eElement, tree);
                     DefaultMutableTreeNode currentNode = new DefaultMutableTreeNode(mte);
                     parseChildsFromXml(eElement,filter,objectPre,currentNode);
-                    System.out.println("Create Node: " + type);
                     tree.add(currentNode);
                 }
             }
@@ -312,7 +311,6 @@ public class ImportFromTemplateFile {
             String type = eElement.getAttribute(ATTR_TYPE);
 
             ModuleTreeElement mte = new ModuleTreeParser().getModuleTreeElementData(eElement, parent,filter.contains(type));
-            System.out.println("Create Node: " + mte.getType()+" -- withData: "+filter.contains(type));
             thisNode = new DefaultMutableTreeNode(mte);
             NodeList childs = eElement.getElementsByTagName(ELEM_CHILD);
             if (childs != null) {
@@ -347,7 +345,7 @@ public class ImportFromTemplateFile {
                 }
             }
         }else{
-            System.out.println("Cannot parse elements of type: "+type);
+            //System.out.println("Cannot parse elements of type: "+type);
         }
         return null;
     }
