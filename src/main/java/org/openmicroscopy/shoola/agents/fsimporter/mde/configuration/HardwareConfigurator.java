@@ -282,7 +282,7 @@ public class HardwareConfigurator extends JFrame implements ActionListener{
 		if(predefinitionsObject_Panel==null || instrument==null) {
 			return;
 		}
-		System.out.println("-- getPredefinition for: "+micName+"::"+instrument);
+		//System.out.println("-- getPredefinition for: "+micName+"::"+instrument);
 		ModuleList hardware = conf.getPredefinitions(micName);
 		if(hardware==null) {
 			predefinitionsObject_Panel.add(new InstrumentTable(null, instrument),BorderLayout.CENTER);

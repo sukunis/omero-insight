@@ -55,17 +55,20 @@ public class MapAnnotationObject {
 	}
 	
 	/**
-	 * Return {@link MapAnnotationObject} with key:= parent | node | tagName; value:= tagValue tagUnit
+	 * Return {@link MapAnnotationObject} with key:= parent | node | tagName; value:= tagValue tagUnit; null if given list is null or empty
 	 * @param input
 	 */
 	public MapAnnotationObject(HashMap<String, List<TagData>> input) {
+		if(input==null || input.isEmpty())
+			return;
 		MapAnnotation ma = new MapAnnotationI();
 		List<NamedValue> values = new ArrayList<NamedValue>();
 		//input->values
 		for(Map.Entry<String, List<TagData>> entry: input.entrySet()) {
 			if(entry.getValue()!=null) {
 				for(TagData t:entry.getValue()) {
-					values.add(new NamedValue(entry.getKey()+" | "+t.getTagName(),t.getTagWholeValue()));
+					if(t.getTagValue()!=null && !t.getTagValue().trim().isEmpty())
+						values.add(new NamedValue(entry.getKey()+" | "+t.getTagName(),t.getTagWholeValue()));
 				}
 			}
 		}
@@ -91,7 +94,7 @@ public class MapAnnotationObject {
 			//copy values
 			List<NamedValue> values=new ArrayList<NamedValue>();
 			for(NamedValue val:valuesOrig){
-				values.add(new NamedValue(val.name, val.value));
+					values.add(new NamedValue(val.name, val.value));
 			}
 			ma.setMapValue(values);
 			this.mapAnnotation.add(new MapAnnotationData(ma));

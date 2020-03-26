@@ -27,21 +27,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreePath;
 
-import ome.xml.model.LightPath;
 import ome.xml.model.Dichroic;
 import ome.xml.model.Filter;
 import ome.xml.model.enums.FilterType;
-import ome.xml.model.FilterSet;
 
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleContent;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleController;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.components.ModuleTreeElement;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.configuration.TagNames;
-import org.openmicroscopy.shoola.agents.fsimporter.mde.util.ImportUserData;
 import org.openmicroscopy.shoola.agents.fsimporter.mde.util.TagData;
 
 /**
@@ -112,11 +107,15 @@ public class MDEHelper {
 		return res;
 		
 	}
-	
+
+	/**
+	 * Reset input for all ModuleTreeElements
+	 * @param contentTree
+	 */
 	public static void resetInput(DefaultMutableTreeNode contentTree) {
 		if(contentTree==null)
 			return;
-		
+		ImporterAgent.getRegistry().getLogger().debug(null,"[MDE] reset input of object tree");
 		Enumeration e = contentTree.breadthFirstEnumeration();
 		while(e.hasMoreElements()) {
 			DefaultMutableTreeNode node =(DefaultMutableTreeNode)e.nextElement();
@@ -127,49 +126,49 @@ public class MDEHelper {
 	}
 	
 	
-	/**
-	 * merge inTree into destTree.
-	 * @param inTree
-	 * @param destTree
-	 * @return destTree with data of inTree
-	 */
-	public static DefaultMutableTreeNode mergeTrees(DefaultMutableTreeNode tree1, DefaultMutableTreeNode tree2,int depth) {
-		
-		if(((ModuleTreeElement) tree1.getUserObject()).isContainer()) {
-			depth++;
-			for(int i = 0 ; i < tree1.getChildCount(); i++) {
-				String nodeName=((DefaultMutableTreeNode)tree1.getChildAt(i)).getUserObject().toString();
-				DefaultMutableTreeNode n1=findNode((DefaultMutableTreeNode) tree1.getChildAt(i),tree2);
-				
-				if(n1==null) {
-//					ImporterAgent.getRegistry().getLogger().debug(null, "-- Node "+nodeName+" doesn't exists, INSERT at depth "+depth));
-				}else {
-					DefaultMutableTreeNode p1=(DefaultMutableTreeNode) n1.getParent();
-					mergeTrees((DefaultMutableTreeNode) tree1.getChildAt(i),n1,depth);
-				}
-				
-			}
-			// iterate through children
-			// find first child node of same type in destTree
-			// save depth of inserted node
-			// get next child of inTree
-			// find this node at return depth or insert
-			
-			//recursive for childs of childs
-		}
-		return tree2;
-	}
-	
-	/**
-	 * 
-	 * @param tree
-	 * @param structure
-	 * @return tree with additional elements that are available in structure
-	 */
-	public static DefaultMutableTreeNode inheritTreeStructure(DefaultMutableTreeNode tree, DefaultMutableTreeNode structure) {
-		
-		return tree;
-	}
+//	/**
+//	 * merge data of tree1 into tree2.
+//	 * @param tree1
+//	 * @param tree2
+//	 * @return destTree with data of inTree
+//	 */
+//	public static DefaultMutableTreeNode mergeTrees(DefaultMutableTreeNode tree1, DefaultMutableTreeNode tree2,int depth) {
+//
+//		if(((ModuleTreeElement) tree1.getUserObject()).isContainer()) {
+//			depth++;
+//			for(int i = 0 ; i < tree1.getChildCount(); i++) {
+//				String nodeName=((DefaultMutableTreeNode)tree1.getChildAt(i)).getUserObject().toString();
+//				DefaultMutableTreeNode n1=findNode((DefaultMutableTreeNode) tree1.getChildAt(i),tree2);
+//
+//				if(n1==null) {
+////					ImporterAgent.getRegistry().getLogger().debug(null, "-- Node "+nodeName+" doesn't exists, INSERT at depth "+depth));
+//				}else {
+//					DefaultMutableTreeNode p1=(DefaultMutableTreeNode) n1.getParent();
+//					mergeTrees((DefaultMutableTreeNode) tree1.getChildAt(i),n1,depth);
+//				}
+//
+//			}
+//			// iterate through children
+//			// find first child node of same type in destTree
+//			// save depth of inserted node
+//			// get next child of inTree
+//			// find this node at return depth or insert
+//
+//			//recursive for childs of childs
+//		}
+//		return tree2;
+//	}
+//
+//	/**
+//	 *
+//	 * @param tree
+//	 * @param structure
+//	 * @return tree with additional elements that are available in structure
+//	 */
+//	public static DefaultMutableTreeNode inheritTreeStructure(DefaultMutableTreeNode tree, DefaultMutableTreeNode structure) {
+//
+//		return tree;
+//	}
 	
 	/**
 	 * Trees are equal if all paths to leafs are equal
@@ -245,7 +244,7 @@ public class MDEHelper {
 	
 	/**
 	 * Return list of direct childs of given tree with same type like child
-	 * @param child
+	 * @param type
 	 * @param tree
 	 * @return
 	 */
@@ -259,6 +258,8 @@ public class MDEHelper {
 				list.add((DefaultMutableTreeNode) tree.getChildAt(i));
 			}
 		}
+		if(list.isEmpty())
+			return null;
 		return list;
 	}
 	
@@ -302,7 +303,7 @@ public class MDEHelper {
 	
 	/**
 	 * Find MDETreeElement with type==mdeTreeElement.getType() and childIndex==mdeTreeElement.getchildIndex()
-	 * @param node
+	 * @param n
 	 * @param tree
 	 * @return
 	 */
@@ -325,7 +326,7 @@ public class MDEHelper {
 	 * @param name
 	 * @return child node as a {@link DefaultMutableTreeNode} or null if no child of this name exists.
 	 */
-	private static DefaultMutableTreeNode getChildByName(DefaultMutableTreeNode tree, String name) {
+	public static DefaultMutableTreeNode getChildByName(DefaultMutableTreeNode tree, String name) {
 		if(tree!=null) {
 			Enumeration e = tree.breadthFirstEnumeration();
 			while(e.hasMoreElements()) {
@@ -337,6 +338,22 @@ public class MDEHelper {
 		}
 		return null;
 	}
+
+	public static List<DefaultMutableTreeNode> getChildsByType(DefaultMutableTreeNode tree, String type) {
+		if(tree!=null) {
+			List<DefaultMutableTreeNode> listOfChilds=new ArrayList<>();
+			Enumeration e = tree.breadthFirstEnumeration();
+			while(e.hasMoreElements()) {
+				DefaultMutableTreeNode node =(DefaultMutableTreeNode)e.nextElement();
+				if(((ModuleTreeElement) node.getUserObject()).getType().trim().equals(type.trim())) {
+					listOfChilds.add(node);
+				}
+			}
+			return listOfChilds;
+		}
+		return null;
+	}
+
 	
 	/**
 	 * @param tree that holds the prospected node
@@ -490,19 +507,21 @@ public class MDEHelper {
 	}
 	
 	/**
-	 * Add data in tree with entries in input, marke it has data has change
+	 * Add data in tree with entries in input, mark it as data has change
 	 * @param tree
 	 * @param input list of nodepath,list(tagData)
 	 */
-	public static void addData(DefaultMutableTreeNode tree,HashMap<String, List<TagData>> input) {
+	public static void addData(DefaultMutableTreeNode tree, HashMap<String, List<TagData>> input) {
 		for(Entry<String, List<TagData>> entry : input.entrySet()) {
 			DefaultMutableTreeNode node = getNodeByPath(tree, entry.getKey(), false);
 			if(node!=null) {
+
 				ModuleContent c=((ModuleTreeElement) node.getUserObject()).getData();
 				for(TagData t:entry.getValue()) {
-					TagData newT=new TagData(t);
-					newT.dataHasChanged(true);
-					c.set(t.getTagName(), newT);
+						TagData newT = new TagData(t);
+						newT.dataHasChanged(true);
+						c.set(t.getTagName(), newT);
+
 				}
 			}
 		}
@@ -788,6 +807,7 @@ public class MDEHelper {
 		}
 		return list;
 	}
+
 	
 	private static DefaultMutableTreeNode getChild(DefaultMutableTreeNode tree, DefaultMutableTreeNode child) {
 		for(int i=0; i<tree.getChildCount(); i++) {
@@ -796,7 +816,23 @@ public class MDEHelper {
 		}
 		return null;
 	}
-	
-	
-	
+
+
+	/**
+	 *
+	 * @param tree
+	 * @return available activated types in given tree
+	 */
+	public static List<String> getTypes(DefaultMutableTreeNode tree) {
+		List<String> typeList=new ArrayList<>();
+		Enumeration e = tree.breadthFirstEnumeration();
+		while(e.hasMoreElements()) {
+			DefaultMutableTreeNode node =(DefaultMutableTreeNode)e.nextElement();
+			String type = ((ModuleTreeElement) node.getUserObject()).getType();
+			if(!typeList.contains(type) && ModuleController.getInstance().configurationExists(type)) {
+				typeList.add(type);
+			}
+		}
+		return typeList;
+	}
 }

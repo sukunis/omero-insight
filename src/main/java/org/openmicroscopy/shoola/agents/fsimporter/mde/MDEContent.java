@@ -247,22 +247,20 @@ public class MDEContent extends JPanel implements TreeSelectionListener{
 	
 	public DefaultMutableTreeNode addContent(ModuleContent c, int index, DefaultMutableTreeNode parent) {
 		if(parent==null) {
-			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Can't add content. Tree is null [MDEContent::addContent]");
 			return null;
 		}
 		if(c==null) {
-			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Can't add content - is null [MDEContent::addContent]");
 			return null;
 		}
 		List<DefaultMutableTreeNode> childs=MDEHelper.getListOfChilds(c.getType(), parent);
 		DefaultMutableTreeNode node=null;
 		if(childs!=null && !childs.isEmpty()) {
-			if(childs.size()<=index) { 
-				ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] insert new subtree of type : "+c.getType());
+			if(childs.size()<=index) {
 				DefaultMutableTreeNode newChild=controller.cloneTreeStructure(childs.get(0), parent);
 				parent.add(newChild);
 				childs.add(index, newChild);
 			}
+			ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Add content: "+c.getType());
 			node = childs.get(index);
 			ModuleContent newC=MDEHelper.completeData(((ModuleTreeElement) node.getUserObject()).getData(), c);
 			((ModuleTreeElement)node.getUserObject()).setData(newC);
@@ -290,7 +288,7 @@ public class MDEContent extends JPanel implements TreeSelectionListener{
 			return null;
 		}
 		
-		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Read file content index: "+i);
+		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] Read file content of index: "+i);
 		List<Objective> objList=null;
 		List<Detector> detectorList=null;
 		List<LightSource> lightSourceList=null;
@@ -487,42 +485,43 @@ public class MDEContent extends JPanel implements TreeSelectionListener{
 			hardwareTables=new LinkedHashMap<>();
 		else
 			hardwareTables.clear();
-		
+
+		// get predefinitions from config file
+		ModuleList mList=controller.getInstrumentsForCurrentMic();
+		List<String> keyInUseList=new ArrayList<>();
+
 		if(fileInstruments!=null) {
-			// create tables with predefined objects in image container and mde config file
 			for (Entry<String, List<ModuleContent>> entry : fileInstruments.entrySet()) {
 				String key = entry.getKey();
 				List<ModuleContent> hardware=new ArrayList<>();
 				List<ModuleContent> valFile = entry.getValue();
-				List<ModuleContent> values = controller.getInstrumentsOfType(key); 
+
 				ObjectTable objTable=null;
 				if(valFile!=null) {
 					hardware.addAll(valFile);
-					if(values!=null) {
-						//merge fileInstruments and hardware stations
-						hardware.addAll(values);
-					}
-					objTable=new ObjectTable(hardware);
-
-				}else {
-					objTable= new ObjectTable(values);
 				}
+				//merge fileInstruments and predefinitions from config file
+				if(mList!=null) {
+					List<ModuleContent> values = mList.get(key);
+					if (values != null) {
+						hardware.addAll(values);
+						keyInUseList.add(key);
+					}
+				}
+				objTable=new ObjectTable(hardware);
+
 				hardwareTables.put(key,objTable );
 			}
-		}else {
-			// create tables with predefined objects of mde config file
-			ModuleList mList=controller.getInstrumentsForCurrentMic();
-			if(mList!=null) {
-				for (Entry<String, List<ModuleContent>> entry : mList.entrySet()) {
-					String key = entry.getKey();
-					List<ModuleContent> values = entry.getValue();
-					if(values!=null) {
-						hardwareTables.put(key, new ObjectTable(values));
-					}
+		}
+		// create tables with predefined custom objects of mde config file
+		if(mList!=null) {
+			for (Entry<String, List<ModuleContent>> entry : mList.entrySet()) {
+				String key = entry.getKey();
+				List<ModuleContent> values = entry.getValue();
+				if(!keyInUseList.contains(key) && values!=null) {
+					hardwareTables.put(key, new ObjectTable(values));
 				}
 			}
 		}
 	}
-	
-
 }
