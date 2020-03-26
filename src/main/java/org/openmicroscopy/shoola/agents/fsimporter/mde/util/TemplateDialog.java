@@ -266,16 +266,43 @@ public class TemplateDialog extends JDialog implements ActionListener{
 	{
 		return tempFile;
 	}
-	
-	
-	public List<String> getSelection()
-	{
 
+
+	public List<String> getSelectionSave()
+	{
 		if(moduleList==null) {
-			//get list from
+			//get list from chosen setup
 			HashMap<String,ModuleContent> list= ModuleController.getInstance().getAvailableContent();
 			if(list!=null)
 				moduleList = new ArrayList<>(list.keySet());
+
+		}
+		return moduleList;
+	}
+
+	/**
+	 *
+	 * @param availableTypelist list of types for that tagdata definition is available in file
+	 * @return list of objectTypes that are part of chosen setup and tagdata definition is available
+	 */
+	public List<String> getSelectionLoad(List<String> availableTypelist)
+	{
+		if(moduleList==null) {
+			//get list from chosen setup
+			HashMap<String,ModuleContent> list= ModuleController.getInstance().getAvailableContent();
+			List<String> objectTypes=null;
+			if(list!=null)
+				objectTypes = new ArrayList<>(list.keySet());
+
+			if(objectTypes!=null && availableTypelist!=null && !availableTypelist.isEmpty()){
+				moduleList=new ArrayList<>();
+				// merge lists: keep all available contents that are def in file
+				for(String s:objectTypes){
+					if(availableTypelist.contains(s)){
+						moduleList.add(s);
+					}
+				}
+			}
 		}
 		return moduleList;
 	}

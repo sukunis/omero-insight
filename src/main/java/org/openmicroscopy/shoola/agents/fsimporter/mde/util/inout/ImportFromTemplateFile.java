@@ -57,6 +57,7 @@ public class ImportFromTemplateFile {
     private final String ELEM_ROOT="ObjectTreeRoot";
     final String ELEM_OBJECT_PRE="ObjectPre";
     final String ELEM_CHILD="ObjectChild";
+    final String ELEM_TAGDATA="TagData";
     final String ATTR_PTYPE="P_Type";
     final String ATTR_PIDX="P_ID";
     final String ATTR_TYPE="Type";
@@ -97,8 +98,10 @@ public class ImportFromTemplateFile {
     }
 
 
-
-
+    /**
+     * Read out objects from template file
+     * @param filter
+     */
     public void parseTemplateFile(List<String> filter)
     {
         try {
@@ -253,8 +256,11 @@ public class ImportFromTemplateFile {
             if (n.getNodeName().equals(ELEM_OBJECT_PRE) && n.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) n;
                 String type = eElement.getAttribute(ATTR_TYPE);
+                Boolean tagdataDef = eElement.getElementsByTagName(ELEM_TAGDATA) != null &&
+                        eElement.getElementsByTagName(ELEM_TAGDATA).getLength() > 0;
 
-                if(type!=null && !type.isEmpty() && !objectTypes.contains(type)){
+                // add only new types to list and if tagdata defs available
+                if(type!=null && !type.isEmpty() && !objectTypes.contains(type) && tagdataDef){
                     objectTypes.add(type);
                 }
                 objectTypes=getTypes(eElement.getElementsByTagName(ELEM_OBJECT_PRE),objectTypes);

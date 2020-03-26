@@ -74,7 +74,6 @@ public class TypeFilter_GUI extends JDialog implements ActionListener {
 
     private void generateListFromFile(String path) {
 
-System.out.println("Generate list from file");
         ImportFromTemplateFile importer=new ImportFromTemplateFile(path);
         List<String> list=importer.createTypeList();
         if(list !=null) {
