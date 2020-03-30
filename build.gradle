@@ -12,7 +12,10 @@ version = "5.5.9-e1"
 
 repositories {
     mavenLocal()
-        maven { url 'file://O:/.m2/repository/' }
+        //maven { url 'file://O:/.m2/repository/' }
+    //flatDir {
+    //    dirs 'C:/path/to/local/directory'
+    //}
     jcenter()
 }
 
