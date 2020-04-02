@@ -60,8 +60,6 @@ import org.w3c.dom.NodeList;
  */
 public class XMLWriter {
 
-//	public static final String xmlFilePath_hardware = "C:\\Users\\Kunis.MB-Bordetella\\omero\\mdeConfiguration.xml";
-//	public static final String xmlFilePath_structure = "C:\\Users\\Kunis.MB-Bordetella\\omero\\mdeConfig_structure.xml";
 	
 	final String MDE_CONFIGURATION = "MDEConfiguration";
 	final String MDE_PREDEFINITIONS="MDEPredefinitions";
@@ -431,13 +429,6 @@ public class XMLWriter {
         
 	}
 	
-	
-
-
-
-
-
-	//TOD=: Desc for mic?
 	/**
 	 * Builds the element
 	 * <pre>{@code
@@ -473,41 +464,6 @@ public class XMLWriter {
 	}
 	
 	
-//	/**
-//	 * Builds the tag for a certain instrument from {@link ModuleContent} object
-//	 * <pre>{@code
-//	 * <ObjectPre Type="" ATTR_ID="" >
-//	 * 		<TagData...>
-//	 *
-//	 * </ObjectPre>
-//	 * }</pre>
-//	 * @param c    {@link ModuleContent} object holds instrument values
-//	 * @param doc
-//	 */
-//	private Element objectPreToXML(ModuleContent c, Document doc) {
-//		if(c==null)
-//			return null;
-//
-//		Element result = doc.createElement(ELEM_OBJECT_PRE);
-//		result.setAttribute(ATTR_ID, c.getAttributeValue(TagNames.ID));//TODO necessary?
-//		result.setAttribute(ATTR_TYPE, c.getType());
-//
-//		List<TagData> list= c.getTagList();
-//		if(list == null)
-//			return result;
-//		//add tagData
-//		TagDataParser td_parser=new TagDataParser();
-//		for(int i=0;i<list.size();i++) {
-//			Element child = td_parser.createXMLElem(list.get(i), doc,ELEM_TAGDATA);
-//			if(child!=null)
-//				result.appendChild(child);
-//		}
-//		return result;
-//	}
-	
-	
-	
-
 	/**
 	 * Builds {@link TagData} element with his properties as attributes.
 	 * {@code

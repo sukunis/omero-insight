@@ -767,23 +767,6 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 	}
 	
 	
-//	private void resetObjectTreeOfChilds2(FNode node,List<DefaultMutableTreeNode> deleteObjectNodes) {
-//		if(node !=null) {
-//			for(int i=0; i<node.getChildCount();i++){
-//				FNode child = (FNode) node.getChildAt(i);
-//
-//				if(child.getContainer()!=null && child.getContainer().getTreeNode()!=null) {
-//					// changes in object tree of parent dir?
-//					if(deleteObjectNodes!=null && !deleteObjectNodes.isEmpty()) {
-//						((Defau) child.getContainer().getTreeNode()).getModel()
-//					}
-//				}
-//				if(!child.isLeaf()) {
-//					resetObjectTreeOfChilds(child, deleteObjectPaths);
-//				}
-//			}
-//		}
-//	}
 	
 	private void resetObjectTreeOfChilds(FNode node,List<String> deleteObjectPaths) {
 		if(node !=null) {
@@ -940,8 +923,8 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 				DefaultMutableTreeNode thisroot = getCurrentModuleTreeRoot();
 				TemplateDialog openF=new TemplateDialog(new JFrame(),tempFile,true,thisroot);
 				if(!openF.isCancelled()) {
-					ImportFromTemplateFile importer = new ImportFromTemplateFile(tempFile.getAbsolutePath());
-					List<String> availableTypelist=importer.createTypeList();
+					ImportFromTemplateFile tempImporter = new ImportFromTemplateFile(tempFile.getAbsolutePath());
+					List<String> availableTypelist=tempImporter.createTypeList();
 					List<String> selectedModulesO = openF.getSelectionLoad(availableTypelist);
 
 					tempFile = openF.getDestination();
@@ -954,15 +937,16 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 					// save input and instruments of current selection
 					deselectNodeAction(thisNode);
 					
-
-					importer.parseTemplateFile(selectedModulesO);
+					tempImporter.parseTemplateFile(selectedModulesO);
 					ImporterAgent.getRegistry().getLogger().debug(this, "[MDE] Load from tempfile: " + tempFile.getAbsolutePath());
-					DefaultMutableTreeNode newTree = importer.getTempObjTree();
+					DefaultMutableTreeNode newTree = tempImporter.getTempObjTree();
+
 					if (loadTreeStructure) {
 						updateObjectTreeByTree(thisNode, newTree);
 					} else {
 						updateObjectTreeByData(thisNode, newTree, selectedModulesO);
 					}
+					updateObjectConf(thisNode);
 					if (thisNode != null)
 						showMDE(thisNode.getContainer(), null);
 				}
@@ -1218,6 +1202,7 @@ implements ActionListener,  TreeSelectionListener, TreeExpansionListener, ListSe
 		
 		ImporterAgent.getRegistry().getLogger().debug(this,"[MDE] clean up");
 		initMDE(getMicName());
+
 	}
 
 	private void saveMapAnnotations() {

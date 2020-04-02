@@ -195,7 +195,6 @@ public class ModuleContent {
 		}
 	}
 
-
 	public String getAttributeValue(String id) {
 		if(tagList==null || !tagList.containsKey(id))
 			return null;
